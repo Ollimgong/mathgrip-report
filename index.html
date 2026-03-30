@@ -1468,7 +1468,7 @@ tr.rc-trend-current .rc-trend-td-score { color: var(--primary-dark); }
       <!-- 하단: 포함월 + 설정 -->
       <div class="sidebar-bottom">
         <div id="loadedMonthsPanel" style="display:none;" class="loaded-months-section">
-          <div class="loaded-months-label">포함된 추이 월</div>
+          <div class="loaded-months-label">불러온 데이터 기간</div>
           <div id="loadedMonthChips" class="loaded-month-chips"></div>
         </div>
         <div class="sidebar-bottom-buttons">
@@ -2833,7 +2833,7 @@ async function printReports(students, allStudents) {
       if (chart) chart.destroy();
     });
     printContainer.remove();
-  }, 1500);
+  }, 3000);
 }
 
 /**
@@ -3455,7 +3455,7 @@ function renderReportCards(s) {
   if (showStudents.length > 50) {
     const more = document.createElement('div');
     more.style.cssText = 'grid-column:1/-1;text-align:center;color:#94A3B8;padding:16px;font-size:13px;';
-    more.textContent = `+ ${showStudents.length - 50}명 더 있습니다. 인쇄 시 전체 포함됩니다.`;
+    more.textContent = `화면에는 50명까지만 표시됩니다. 나머지 ${showStudents.length - 50}명은 인쇄 버튼을 누르면 전체 출력됩니다.`;
     grid.appendChild(more);
   }
 
@@ -3471,7 +3471,10 @@ function renderReportCards(s) {
   grid.querySelectorAll('[data-action]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const student = s.filteredStudents.find(st => makeKey(st) === btn.dataset.key);
+      const showStudents2 = s.selectedStudentIds.size > 0
+        ? s.currentMonthStudents.filter(st => s.selectedStudentIds.has(makeKey(st)))
+        : s.filteredStudents;
+      const student = showStudents2.find(st => makeKey(st) === btn.dataset.key);
       if (!student) return;
       const color = getGradeColor(student.grade, s);
       if (btn.dataset.action === 'preview') {
@@ -3610,6 +3613,10 @@ document.getElementById('logoUploadArea').addEventListener('click', () => {
 document.getElementById('logoInput').addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showToast('이미지 파일만 업로드할 수 있습니다. (PNG, JPG, SVG 등)', 'warning');
+    return;
+  }
   if (file.size > 500 * 1024) {
     showToast('로고 파일이 너무 큽니다. 500KB 이하로 업로드해주세요.', 'warning');
     return;
