@@ -1546,6 +1546,9 @@ tr.rc-trend-current .rc-trend-td-score { color: var(--primary-dark); }
             <h2 style="font-size:20px;font-weight:800;margin-bottom:8px;color:#1E293B;">월말평가 레포트 생성기</h2>
             <p style="color:#64748B;margin-bottom:20px;font-size:14px;">먼저 구글 시트를 연동해주세요.</p>
             <button class="btn btn-primary" id="welcomeSheetBtn" style="padding:10px 24px;font-size:14px;">⚙️ 시트 설정하기</button>
+            <div style="margin-top:12px;">
+              <button class="btn btn-ghost" id="btnLoadMockData" style="font-size:12px;color:#94A3B8;border:1px dashed #CBD5E1;">🧪 개발용 테스트 데이터 로드</button>
+            </div>
           </div>
           <!-- 시트 연결됨: 자동 로드 -->
           <div id="welcomeAutoLoad" style="display:none;">
@@ -3177,6 +3180,76 @@ async function loadFromSheet(tabName) {
     loadRow.style.display = '';
   }
 }
+
+// ── 개발용 Mock 데이터 ────────────────────────────────────
+function makeMockStudent(id, month, name, teacher, school, grade, score, opts = {}) {
+  const present = opts.present ?? 8;
+  const late    = opts.late    ?? 1;
+  const absent  = opts.absent  ?? 0;
+  const total   = present + late + absent;
+  const att  = [present, late, absent, total];
+  const att2 = [opts.att2_3 ?? 6, opts.att2_2 ?? 2, opts.att2_1 ?? 1, opts.att2Pct ?? 88];
+  const hw   = [opts.hw_3 ?? 7, opts.hw_2 ?? 1, opts.hw_1 ?? 1, opts.hw_0 ?? 0, opts.hwPct ?? 90];
+  return {
+    id, month, name, teacher, school, grade,
+    score: score ?? null,
+    scope: opts.scope ?? '수학Ⅰ · 수학Ⅱ',
+    dateStart: '26.03.01', dateEnd: '26.03.31',
+    att, att2, hw,
+    progress: opts.progress ?? '삼각함수 완료, 수열 진행 중',
+    comment:  opts.comment  ?? '꾸준히 성장하고 있습니다.',
+    attStats:  calcAttStats(att),
+    att2Stats: calcRatingStats(att2, 3),
+    hwStats:   calcRatingStats(hw, 4),
+  };
+}
+
+function loadMockData() {
+  const months = ['2026년 1월', '2026년 2월', '2026년 3월'];
+  const students = [];
+
+  const roster = [
+    { id:'S001', name:'김민준', teacher:'이선생', school:'한빛중', grade:'중3', scores:[82,87,91] },
+    { id:'S002', name:'박서연', teacher:'이선생', school:'한빛중', grade:'중3', scores:[76,80,85], comment:'수학에 대한 자신감이 늘었습니다.' },
+    { id:'S003', name:'이도윤', teacher:'김선생', school:'성심중', grade:'중2', scores:[90,92,95], att2Pct:96, hwPct:98, comment:'모든 면에서 모범적입니다.' },
+    { id:'S004', name:'정하은', teacher:'김선생', school:'성심중', grade:'중2', scores:[65,70,null], late:2, absent:1 },
+    { id:'S005', name:'최준혁', teacher:'박선생', school:'미래고', grade:'고1', scores:[88,85,90] },
+    { id:'S006', name:'윤서현', teacher:'박선생', school:'미래고', grade:'고1', scores:[72,78,82], progress:'미적분 개념 정리 중' },
+    { id:'S007', name:'장민서', teacher:'이선생', school:'한빛중', grade:'중3', scores:[55,60,68], att2Pct:70, hwPct:65, comment:'집중력 개선이 필요합니다.' },
+    { id:'S008', name:'한지우', teacher:'김선생', school:'성심중', grade:'중2', scores:[93,95,98], comment:'최상위권 유지 중입니다.' },
+    { id:'S009', name:'오현준', teacher:'박선생', school:'미래고', grade:'고2', scores:[79,83,87] },
+    { id:'S010', name:'신유나', teacher:'박선생', school:'미래고', grade:'고2', scores:[null,85,89] },
+  ];
+
+  months.forEach(month => {
+    roster.forEach(r => {
+      const mIdx = months.indexOf(month);
+      students.push(makeMockStudent(
+        r.id, month, r.name, r.teacher, r.school, r.grade, r.scores[mIdx],
+        { comment: r.comment, progress: r.progress,
+          late: r.late, absent: r.absent,
+          att2Pct: r.att2Pct, hwPct: r.hwPct }
+      ));
+    });
+  });
+
+  AppStore.setAllStudents(students, 'mock:2026-03');
+  AppStore.setSelectedMonth('2026년 3월');
+
+  const panel = document.getElementById('loadedMonthsPanel');
+  const chips  = document.getElementById('loadedMonthChips');
+  panel.style.display = '';
+  chips.innerHTML = months.map((m, i) =>
+    `<span class="loaded-month-chip ${i === months.length - 1 ? 'current' : ''}">${m}</span>`
+  ).join('');
+
+  document.getElementById('studentPanel').style.display = '';
+  document.getElementById('welcomeNoSheet').style.display = 'none';
+  showToast('🧪 테스트 데이터 로드 완료! (학생 ' + roster.length + '명 × ' + months.length + '개월)', 'success');
+  renderAll();
+}
+
+document.getElementById('btnLoadMockData').addEventListener('click', loadMockData);
 
 // 사이드바 불러오기 버튼
 document.getElementById('btnLoadFromSheet').addEventListener('click', () => {
