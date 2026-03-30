@@ -11,7 +11,7 @@
  * @param {string} raw - pipe(|) 구분 MASTER 문자열
  * @returns {Object|null}
  */
-export function parseMaster(raw) {
+function parseMaster(raw) {
   if (!raw || typeof raw !== 'string') return null;
   const parts = raw.split('|');
   if (parts.length < 10) return null; // 최소 필드 수 체크 (v4: 15필드)
@@ -135,7 +135,7 @@ function calcRatingStats(arr, valueCnt) {
  * @param {string} csvText - CSV 파일 내용
  * @returns {Object[]} students 배열
  */
-export function parseCSV(csvText) {
+function parseCSV(csvText) {
   if (!csvText) return [];
   const lines = csvText.split(/\r?\n/);
   const students = [];
@@ -162,7 +162,7 @@ export function parseCSV(csvText) {
  * @param {string} studentId - 학생 ID
  * @returns {Array<{month, score}>} 월별 성적 배열 (시간순)
  */
-export function getAnnualScores(allStudents, studentId) {
+function getAnnualScores(allStudents, studentId) {
   const records = allStudents
     .filter(s => s.id === studentId && s.score !== null)
     .map(s => ({ month: s.month, score: s.score }));
@@ -185,28 +185,28 @@ function parseMonthLabel(label) {
 /**
  * 전체 데이터에서 유니크한 선생님 목록 추출
  */
-export function getTeachers(students) {
+function getTeachers(students) {
   return [...new Set(students.map(s => s.teacher).filter(Boolean))].sort();
 }
 
 /**
  * 전체 데이터에서 유니크한 학교 목록 추출
  */
-export function getSchools(students) {
+function getSchools(students) {
   return [...new Set(students.map(s => s.school).filter(Boolean))].sort();
 }
 
 /**
  * 전체 데이터에서 유니크한 학년 목록 추출
  */
-export function getGrades(students) {
+function getGrades(students) {
   return [...new Set(students.map(s => s.grade).filter(Boolean))].sort((a, b) => gradeOrder(a) - gradeOrder(b));
 }
 
 /**
  * 전체 데이터에서 유니크한 시행월 목록 추출
  */
-export function getMonths(students) {
+function getMonths(students) {
   const months = [...new Set(students.map(s => s.month).filter(Boolean))];
   months.sort((a, b) => parseMonthLabel(b) - parseMonthLabel(a)); // 최신순
   return months;

@@ -26,8 +26,7 @@
   --radius-sm:      6px;
   --radius-md:      12px;
   --radius-lg:      16px;
-  --sidebar-w:      220px;
-  --sidebar-students-w: 260px;
+  --sidebar-w:      300px;
   --header-h:       56px;
 }
 
@@ -105,30 +104,97 @@ a { color: inherit; text-decoration: none; }
 
 /* ── 사이드바 ─────────────────────────────────────────────── */
 .sidebar {
+  width: var(--sidebar-w);
   background: var(--bg-card);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
   flex-shrink: 0;
 }
 .sidebar::-webkit-scrollbar { width: 4px; }
 .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-.sidebar-config {
-  width: var(--sidebar-w);
+.sidebar-top {
   padding: 12px;
+  border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0;
 }
-.sidebar-students {
-  width: var(--sidebar-students-w);
+.sidebar-month-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
 }
-.sidebar-section-title {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--secondary);
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--primary-light);
+.sidebar-student-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-bottom {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border-light);
+}
+.sidebar-bottom-buttons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.loaded-months-section {
+  margin-bottom: 8px;
+}
+.loaded-months-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  margin-bottom: 4px;
+}
+/* 선택 요약 */
+.selection-summary {
+  padding: 6px 12px;
+  background: var(--primary-light);
+  border-bottom: 1px solid var(--primary-mid);
+  flex-shrink: 0;
+}
+.selection-summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 4px;
+}
+.selection-summary-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  max-height: 48px;
+  overflow-y: auto;
+}
+.selection-tag {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: white;
+  color: var(--primary-dark);
+  border: 1px solid var(--primary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.selection-tag:hover {
+  background: var(--primary);
+  color: white;
+}
+.selection-tag .tag-x {
+  font-size: 8px;
+  opacity: 0.6;
 }
 .config-group {
   margin-bottom: 12px;
@@ -139,7 +205,13 @@ a { color: inherit; text-decoration: none; }
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: .04em;
-  margin-bottom: 5px;
+  margin-bottom: 3px;
+}
+.config-desc {
+  font-size: 10px;
+  color: var(--text-light);
+  margin-bottom: 6px;
+  line-height: 1.4;
 }
 .loaded-month-chips {
   display: flex;
@@ -152,27 +224,13 @@ a { color: inherit; text-decoration: none; }
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 12px;
-  border: 1px solid var(--border);
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  border: 1px solid var(--primary);
 }
 .loaded-month-chip.current {
   background: var(--primary);
   color: white;
-  border-color: var(--primary);
-}
-.loaded-month-chip.loaded {
-  background: var(--primary-light);
-  color: var(--primary-dark);
-  border-color: var(--primary);
-}
-.loaded-month-chip.future {
-  background: var(--bg);
-  color: var(--text-light);
-  border-color: var(--border-light);
-}
-.loaded-month-chip.empty {
-  background: #fef9c3;
-  color: #a16207;
-  border-color: #fde68a;
 }
 
 /* 소스 패널 */
@@ -677,15 +735,15 @@ a { color: inherit; text-decoration: none; }
 .logo-preview { max-height: 60px; max-width: 100%; object-fit: contain; }
 
 /* 선생님 색상 */
-.teacher-color-item {
+.grade-color-item {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 8px 0;
   border-bottom: 1px solid var(--border-light);
 }
-.teacher-color-item:last-child { border-bottom: none; }
-.teacher-color-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--text-main); }
+.grade-color-item:last-child { border-bottom: none; }
+.grade-color-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--text-main); }
 .color-presets { display: flex; gap: 5px; align-items: center; }
 .color-preset-btn {
   width: 20px;
@@ -708,7 +766,7 @@ a { color: inherit; text-decoration: none; }
   background: none;
   overflow: hidden;
 }
-.teacher-color-preview { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); }
+.grade-color-preview { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); }
 
 /* Notion 방법 */
 .howto-step {
@@ -1222,7 +1280,7 @@ tr.rc-trend-current .rc-trend-td-score { color: var(--primary-dark); }
     margin: 8mm 10mm;
   }
   body { background: white !important; }
-  .app-wrapper, .app-header, .sidebar, .sidebar-config, .sidebar-students, .tabs,
+  .app-wrapper, .app-header, .sidebar, .tabs,
   .stats-bar, .selection-bar, .toast-container, .chip-filter-bar { display: none !important; }
   .main-content { display: none !important; }
   #print-container {

@@ -2,20 +2,19 @@
 //  print.js — PDF 출력 / 프린트 처리 (버그 수정 v2)
 // ============================================================
 
-import { buildReportCard, renderCharts, destroyAllCharts } from './renderer.js';
-import AppStore from './store.js';
+
 
 /**
  * 선택된 학생들의 레포트를 프린트
  */
-export async function printReports(students, allStudents) {
+async function printReports(students, allStudents) {
   if (!students || students.length === 0) {
     alert('출력할 학생을 선택해주세요.');
     return;
   }
 
   const state = AppStore.getState();
-  const { academyName, logoBase64, teacherColors } = state;
+  const { academyName, logoBase64, gradeColors } = state;
 
   // ── 기존 프린트 컨테이너 완전 제거 ──────────────────────
   const existing = document.getElementById('print-container');
@@ -39,8 +38,8 @@ export async function printReports(students, allStudents) {
 
   for (const student of students) {
     const uid   = `print_${student.id}_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
-    const color = getTeacherColor(student.teacher, state);
-    const html  = buildReportCard(student, allStudents, color, { academyName, logoBase64, teacherColors }, uid);
+    const color = getGradeColor(student.grade, state);
+    const html  = buildReportCard(student, allStudents, color, { academyName, logoBase64, gradeColors }, uid);
 
     const page = document.createElement('div');
     page.className = 'print-page';
@@ -55,7 +54,7 @@ export async function printReports(students, allStudents) {
   await sleep(120); // DOM paint 대기
 
   for (const [student, uid] of uidMap) {
-    const color = getTeacherColor(student.teacher, state);
+    const color = getGradeColor(student.grade, state);
     renderCharts(student, allStudents, color, uid);
   }
 
@@ -71,15 +70,15 @@ export async function printReports(students, allStudents) {
       if (chart) chart.destroy();
     });
     printContainer.remove();
-  }, 1500);
+  }, 3000);
 }
 
 /**
  * 단일 학생 미리보기 모달
  */
-export function previewReport(student, allStudents, accentColor) {
+function previewReport(student, allStudents, accentColor) {
   const state = AppStore.getState();
-  const { academyName, logoBase64, teacherColors } = state;
+  const { academyName, logoBase64, gradeColors } = state;
 
   // 기존 모달 제거 (차트 포함)
   const existing = document.getElementById('preview-modal');
@@ -93,7 +92,7 @@ export function previewReport(student, allStudents, accentColor) {
 
   const color = accentColor || '#3B82F6';
   const uid   = `preview_${Date.now()}`;
-  const html  = buildReportCard(student, allStudents, color, { academyName, logoBase64, teacherColors }, uid);
+  const html  = buildReportCard(student, allStudents, color, { academyName, logoBase64, gradeColors }, uid);
 
   const modal = document.createElement('div');
   modal.id = 'preview-modal';
@@ -138,12 +137,7 @@ export function previewReport(student, allStudents, accentColor) {
 // ── 유틸 ─────────────────────────────────────────────────
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-function getGradeColor(grade, state) {
-  if (state.teacherColors?.[grade]) return state.teacherColors[grade];
-  const COLORS  = ['#3B82F6','#10B981','#8B5CF6','#F59E0B','#EC4899','#14B8A6'];
-  const grades = [...new Set((state.allStudents || []).map(s => s.grade).filter(Boolean))].sort();
-  return COLORS[grades.indexOf(grade) % COLORS.length] || '#3B82F6';
-}
+
 
 /**
  * 인쇄 시 카드 내용이 A4 1페이지를 넘칠 때 자동 축소

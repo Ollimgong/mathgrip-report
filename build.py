@@ -6,7 +6,7 @@ with open('js/store.js') as f: store_js = f.read()
 with open('js/renderer.js') as f: renderer_js = f.read()
 with open('js/print.js') as f: print_js = f.read()
 with open('js/googleSheets.js') as f: sheets_js = f.read()
-with open('index.html') as f: html = f.read()
+with open('index_modules.html') as f: html = f.read()
 
 def strip_modules(code):
     code = re.sub(r"^import\s*\{[^}]*\}\s*from\s*['\"].*?['\"];?\s*$", "", code, flags=re.MULTILINE | re.DOTALL)
@@ -97,8 +97,9 @@ new_script_block = f"""<script>
 
 html_out = html_out.replace(old_script_block, new_script_block)
 
-with open('index_bundled.html', 'w') as f:
+with open('index.html', 'w') as f:
     f.write(html_out)
+print("→ index.html 생성 완료")
 
 remaining_imports = re.findall(r"^import\s", html_out, re.MULTILINE)
 if remaining_imports:

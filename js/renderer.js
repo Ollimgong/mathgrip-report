@@ -6,7 +6,6 @@
 //  - 카드 고정 크기 (A4 비율)
 // ============================================================
 
-import { getAnnualScores } from './parser.js';
 
 // Chart 인스턴스 추적 (canvas ID → 인스턴스)
 const chartInstances = new Map();
@@ -29,12 +28,7 @@ function makeCanvasId(type, studentId, uid) {
 }
 
 // ── "2026년 3월" → 202603 변환 (정렬 용도) ────────────────
-function parseMonthLabel(label) {
-  if (!label) return 0;
-  const m = label.match(/(\d{4})년\s*(\d{1,2})월/);
-  if (!m) return 0;
-  return Number(m[1]) * 100 + Number(m[2]);
-}
+
 
 // ── "2026년 3월" → "3월" (짧은 라벨) ─────────────────────
 function shortMonth(label) {
@@ -52,15 +46,18 @@ function buildDataSlots(currentMonth, annualScores, allStudents, studentId) {
   const cur = parseMonthLabel(currentMonth);
   if (!cur) return [];
 
+  // allStudents에 존재하는 모든 고유 월 (= 실제 로드된 탭)
   const existingMonths = [...new Set(allStudents.map(s => s.month).filter(Boolean))]
     .filter(m => parseMonthLabel(m) <= cur)
     .sort((a, b) => parseMonthLabel(a) - parseMonthLabel(b));
 
+  // 최대 7개 (기준월 포함 최근 7개월)
   const recentMonths = existingMonths.slice(-7);
 
   return recentMonths.map(label => {
     const isCurrent = (label === currentMonth);
     const found = annualScores.find(s => s.month === label);
+    // 해당 월의 학년 (같은 학생의 해당 월 레코드에서 추출)
     const rec = allStudents.find(s => s.id === studentId && s.month === label);
     const grade = rec ? rec.grade : null;
     return {
@@ -74,7 +71,7 @@ function buildDataSlots(currentMonth, annualScores, allStudents, studentId) {
 }
 
 // ── 레포트 카드 HTML 생성 ──────────────────────────────────
-export function buildReportCard(student, allStudents, accentColor, settings, uid) {
+function buildReportCard(student, allStudents, accentColor, settings, uid) {
   // 선생님별 색상은 카드 헤더/포인트에만 제한적으로 사용
   // 전체 UI는 브랜드 컬러 기반
   const color      = accentColor || BRAND_PRIMARY;
@@ -94,6 +91,16 @@ export function buildReportCard(student, allStudents, accentColor, settings, uid
 
   const { score, attStats, att2Stats, hwStats } = student;
 
+  // 학년별 색상 헬퍼
+  const gradeColors = (settings && settings.gradeColors) || {};
+  const defaultGradeColorList = ['#3B82F6','#10B981','#8B5CF6','#F59E0B','#EC4899','#14B8A6'];
+  const allGrades = [...new Set(allStudents.map(s => s.grade).filter(Boolean))].sort();
+  function getSlotGradeColor(grade) {
+    if (!grade) return BRAND_PRIMARY;
+    if (gradeColors[grade]) return gradeColors[grade];
+    return defaultGradeColorList[allGrades.indexOf(grade) % defaultGradeColorList.length] || BRAND_PRIMARY;
+  }
+
   const logoHtml = logoBase64
     ? `<img src="${logoBase64}" alt="로고" class="rc-logo-img">`
     : `<div class="rc-logo-placeholder">📐</div>`;
@@ -106,12 +113,21 @@ export function buildReportCard(student, allStudents, accentColor, settings, uid
   // ── 성적 추이: 테이블 + 막대그래프 병렬 ────────────────
   const maxScore = 100;
 
+  // 학년이 바뀌는 지점 감지 + 범례 생성
+  const usedGrades = [...new Set(slots.map(s => s.grade).filter(Boolean))];
+  const gradeLegendHtml = usedGrades.length > 1
+    ? `<div class="rc-trend-legend">${usedGrades.map(g =>
+        `<span class="rc-trend-legend-item"><span class="rc-trend-legend-dot" style="background:${getSlotGradeColor(g)};"></span>${g}</span>`
+      ).join('')}</div>`
+    : '';
+
   // 모든 슬롯 표시 (점수 없는 달도 포함)
   const trendTableRows = slots.map(slot => {
     const scopeText = slot.score !== null ? (slot.scope || '').replace(/;/g, ' / ').trim() : '';
     const scoreText = slot.score !== null ? slot.score : '<span class="rc-trend-no-score">미시행</span>';
+    const gradeColor = getSlotGradeColor(slot.grade);
     return `<tr class="${slot.isCurrent ? 'rc-trend-current' : ''}">
-      <td class="rc-trend-td-month">${shortMonth(slot.label)}</td>
+      <td class="rc-trend-td-month"><span class="rc-grade-dot" style="background:${gradeColor};"></span>${shortMonth(slot.label)}</td>
       <td class="rc-trend-td-score">${scoreText}</td>
       <td class="rc-trend-td-scope">${scopeText}</td>
     </tr>`;
@@ -119,10 +135,11 @@ export function buildReportCard(student, allStudents, accentColor, settings, uid
 
   const barsHtml = slots.map(slot => {
     const pct = slot.score !== null ? Math.round(slot.score / maxScore * 100) : 0;
-    const barColor = slot.isCurrent ? BRAND_PRIMARY : hexToRgba(BRAND_PRIMARY, 0.45);
+    const gradeColor = getSlotGradeColor(slot.grade);
+    const barOpacity = slot.isCurrent ? 1 : 0.55;
     const scoreLabel = slot.score !== null ? `<div class="rc-bar-score">${slot.score}</div>` : '<div class="rc-bar-score">&nbsp;</div>';
     const barInner = slot.score !== null
-      ? `<div class="rc-bar-fill" style="height:${pct}%;background:${barColor};"></div>`
+      ? `<div class="rc-bar-fill" style="height:${pct}%;background:${gradeColor};opacity:${barOpacity};"></div>`
       : `<div class="rc-bar-empty"></div>`;
     return `
     <div class="rc-bar-col">
@@ -196,7 +213,10 @@ export function buildReportCard(student, allStudents, accentColor, settings, uid
 
   <!-- 성적 추이 -->
   <div class="rc-trend-section">
-    <div class="rc-trend-title" style="border-left:3px solid ${BRAND_PRIMARY};padding-left:8px;color:${BRAND_SECONDARY};">성적 추이</div>
+    <div class="rc-trend-header">
+      <div class="rc-trend-title" style="border-left:3px solid ${BRAND_PRIMARY};padding-left:8px;color:${BRAND_SECONDARY};">성적 추이</div>
+      ${gradeLegendHtml}
+    </div>
     <div class="rc-trend-layout">
       <div class="rc-trend-table-wrap">
         <table class="rc-trend-table">
@@ -286,7 +306,7 @@ export function buildReportCard(student, allStudents, accentColor, settings, uid
 }
 
 // ── 차트 렌더링 (도넛 3개만, 막대는 CSS) ─────────────────
-export function renderCharts(student, allStudents, accentColor, uid) {
+function renderCharts(student, allStudents, accentColor, uid) {
   const cardUid = uid || findCardUid(student.id);
   if (!cardUid) return;
 
@@ -358,7 +378,7 @@ function destroyChart(id) {
   }
 }
 
-export function destroyAllCharts() {
+function destroyAllCharts() {
   chartInstances.forEach(c => { try { c.destroy(); } catch(e) {} });
   chartInstances.clear();
 }

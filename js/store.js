@@ -5,7 +5,7 @@
 const STORAGE_KEY = 'mg_report_settings';
 
 // 기본 학년별 색상
-export const DEFAULT_TEACHER_COLORS = [
+const DEFAULT_GRADE_COLORS = [
   { name: '블루', value: '#3B82F6' },
   { name: '그린', value: '#10B981' },
   { name: '퍼플', value: '#8B5CF6' },
@@ -31,7 +31,7 @@ const AppStore = (() => {
     // 설정
     academyName: '매쓰그립수학학원',
     logoBase64: '',
-    teacherColors: {},
+    gradeColors: {},
 
     // UI 상태
     isLoaded: false,
@@ -173,7 +173,7 @@ const AppStore = (() => {
     },
 
     getSelectedStudents() {
-      return state.filteredStudents.filter(s =>
+      return state.currentMonthStudents.filter(s =>
         state.selectedStudentIds.has(makeKey(s))
       );
     },
@@ -186,7 +186,7 @@ const AppStore = (() => {
           const parsed = JSON.parse(saved);
           state.academyName = parsed.academyName || '매쓰그립수학학원';
           state.logoBase64 = parsed.logoBase64 || '';
-          state.teacherColors = parsed.teacherColors || {};
+          state.gradeColors = parsed.gradeColors || {};
         }
       } catch (e) {
         console.warn('[Store] 설정 로드 실패:', e);
@@ -196,13 +196,13 @@ const AppStore = (() => {
     saveSettings(settings) {
       if (settings.academyName !== undefined) state.academyName = settings.academyName;
       if (settings.logoBase64 !== undefined) state.logoBase64 = settings.logoBase64;
-      if (settings.teacherColors !== undefined) state.teacherColors = settings.teacherColors;
+      if (settings.gradeColors !== undefined) state.gradeColors = settings.gradeColors;
 
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           academyName: state.academyName,
           logoBase64: state.logoBase64,
-          teacherColors: state.teacherColors,
+          gradeColors: state.gradeColors,
         }));
       } catch (e) {
         console.warn('[Store] 설정 저장 실패:', e);
@@ -210,20 +210,20 @@ const AppStore = (() => {
       notify();
     },
 
-    setTeacherColor(teacher, color) {
-      state.teacherColors = { ...state.teacherColors, [teacher]: color };
+    setGradeColor(teacher, color) {
+      state.gradeColors = { ...state.gradeColors, [teacher]: color };
       this.saveSettings({});
       notify();
     },
 
-    getTeacherColor(teacher) {
-      return state.teacherColors[teacher] || null;
+    getGradeColor(teacher) {
+      return state.gradeColors[teacher] || null;
     },
   };
 })();
 
 // 복합 키 생성 (id + month)
-export function makeKey(student) {
+function makeKey(student) {
   return `${student.id}::${student.month}`;
 }
 
@@ -234,11 +234,6 @@ function getUniqueMonths(students) {
   return months;
 }
 
-function parseMonthLabel(label) {
-  if (!label) return 0;
-  const m = label.match(/(\d{4})년\s*(\d{1,2})월/);
-  if (!m) return 0;
-  return Number(m[1]) * 100 + Number(m[2]);
-}
 
-export default AppStore;
+
+// default export: AppStore;

@@ -22,97 +22,96 @@
       </div>
     </div>
     <div class="app-header-right">
-      <button class="btn btn-primary btn-sm" id="btnPrintSelected" disabled>
-        🖨️ 선택 인쇄
-      </button>
     </div>
   </header>
 
   <!-- ── 메인 레이아웃 ───────────────────────── -->
   <div class="main-layout">
 
-    <!-- ── 왼쪽: 레포트 설정 사이드바 ──────────── -->
-    <aside class="sidebar sidebar-config">
-      <div class="sidebar-section-title">레포트 설정</div>
+    <!-- ── 사이드바 (통합) ──────────────────────── -->
+    <aside class="sidebar" id="mainSidebar">
 
-      <!-- 시트 미연결 -->
-      <div id="sheetNotConnected" class="sheet-guide-box">
-        <div class="sheet-guide-text">구글 시트 ID를 설정에서<br>먼저 입력해주세요</div>
-        <button class="btn btn-primary btn-sm" id="btnGoToSheetSettings" style="margin-top:8px;width:100%;">
-          ⚙️ 시트 설정
-        </button>
-      </div>
+      <!-- 월 선택 + 불러오기 -->
+      <div class="sidebar-top">
+        <!-- 시트 미연결 -->
+        <div id="sheetNotConnected" class="sheet-guide-box">
+          <div class="sheet-guide-text">구글 시트를 먼저 연동해주세요</div>
+          <button class="btn btn-primary btn-sm" id="btnGoToSheetSettings" style="margin-top:8px;width:100%;">
+            ⚙️ 시트 설정
+          </button>
+        </div>
 
-      <!-- 시트 연동됨: 기준월 + 포함월 선택 -->
-      <div id="sheetLoadRow" style="display:none;">
-        <div class="config-group">
-          <div class="config-label">기준월</div>
-          <div class="sheet-load-row">
+        <!-- 시트 연동됨 -->
+        <div id="sheetLoadRow" style="display:none;">
+          <div class="sidebar-month-row">
             <select id="sheetMonthSelect" class="filter-select" style="flex:1;">
               <option value="">월 선택...</option>
             </select>
-            <button class="btn btn-primary btn-sm" id="btnLoadFromSheet" style="white-space:nowrap;padding:6px 10px;">
+            <button class="btn btn-primary btn-sm" id="btnLoadFromSheet" style="white-space:nowrap;padding:6px 12px;">
               🔄 불러오기
             </button>
           </div>
         </div>
 
-        <!-- 포함된 월 (로드 후 표시) -->
-        <div id="loadedMonthsPanel" style="display:none;">
-          <div class="config-label">포함된 월 (추이용)</div>
+        <!-- 로딩 상태 -->
+        <div id="sheetLoadingBox" style="display:none;" class="sheet-loading-box">
+          <div class="loading-spinner"></div>
+          <span id="sheetLoadingMsg">불러오는 중...</span>
+        </div>
+      </div>
+
+      <!-- 학생 목록 영역 (로드 후 표시) -->
+      <div id="studentPanel" style="display:none;" class="sidebar-student-panel">
+        <!-- 검색 -->
+        <div class="filter-panel">
+          <input type="text" class="search-input" id="searchInput" placeholder="🔍 이름, 학교 검색..." disabled>
+        </div>
+
+        <!-- 정렬 + 목록 헤더 -->
+        <div class="student-list-header">
+          <span class="student-count" id="studentCount">학생 0명</span>
+          <div class="list-actions">
+            <select class="sort-select" id="sortSelect">
+              <option value="name">이름순</option>
+              <option value="score-desc">점수↑</option>
+              <option value="score-asc">점수↓</option>
+            </select>
+            <button class="btn btn-ghost btn-xs" id="btnSelectAll" disabled>전체</button>
+            <button class="btn btn-ghost btn-xs" id="btnClearSelection" disabled>해제</button>
+            <button class="btn btn-primary btn-xs" id="btnPrintAllFiltered" style="display:none;">🖨️ 인쇄</button>
+          </div>
+        </div>
+
+        <!-- 선택된 학생 요약 -->
+        <div id="selectionSummary" class="selection-summary" style="display:none;">
+          <div class="selection-summary-header">
+            <span id="selectionSummaryCount">0명 선택됨</span>
+            <button class="btn btn-ghost btn-xs" id="btnClearAll">✕ 전체 해제</button>
+          </div>
+          <div id="selectionSummaryList" class="selection-summary-list"></div>
+        </div>
+
+        <!-- 학생 목록 (스크롤 영역) -->
+        <div class="student-list" id="studentList">
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <div class="empty-title">데이터 없음</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 하단: 포함월 + 설정 -->
+      <div class="sidebar-bottom">
+        <div id="loadedMonthsPanel" style="display:none;" class="loaded-months-section">
+          <div class="loaded-months-label">불러온 데이터 기간</div>
           <div id="loadedMonthChips" class="loaded-month-chips"></div>
         </div>
-      </div>
-
-      <!-- 로딩 상태 -->
-      <div id="sheetLoadingBox" style="display:none;" class="sheet-loading-box">
-        <div class="loading-spinner"></div>
-        <span id="sheetLoadingMsg">불러오는 중...</span>
-      </div>
-
-      <!-- 하단 버튼 -->
-      <div style="margin-top:auto;padding:10px 12px;border-top:1px solid var(--border-light);">
-        <div id="sheetStatusBadge" style="display:none;margin-bottom:6px;" class="badge badge-green" title="연동된 시트 ID">
-          <span id="connectedSheetIdLabel">–</span>
-        </div>
-        <button class="btn btn-ghost btn-xs" id="btnChangeSheet" style="width:100%;display:none;">시트 설정 변경</button>
-        <button class="btn btn-ghost btn-xs" id="btnSettings" style="width:100%;margin-top:4px;">⚙️ 설정</button>
-      </div>
-    </aside>
-
-    <!-- ── 가운데: 학생 목록 사이드바 ─────────── -->
-    <aside class="sidebar sidebar-students" id="studentSidebar" style="display:none;">
-      <!-- 시행월 선택 -->
-      <div class="month-selector">
-        <select id="monthSelect" disabled>
-          <option value="">📅 시행월 선택...</option>
-        </select>
-      </div>
-
-      <!-- 검색 -->
-      <div class="filter-panel">
-        <input type="text" class="search-input" id="searchInput" placeholder="🔍 이름, 학교 검색..." disabled>
-      </div>
-
-      <!-- 정렬 + 목록 헤더 -->
-      <div class="student-list-header">
-        <span class="student-count" id="studentCount">학생 0명</span>
-        <div class="list-actions">
-          <select class="sort-select" id="sortSelect">
-            <option value="name">이름순</option>
-            <option value="score-desc">점수↑</option>
-            <option value="score-asc">점수↓</option>
-          </select>
-          <button class="btn btn-ghost btn-xs" id="btnSelectAll" disabled>전체</button>
-          <button class="btn btn-ghost btn-xs" id="btnClearSelection" disabled>해제</button>
-        </div>
-      </div>
-
-      <!-- 학생 목록 -->
-      <div class="student-list" id="studentList">
-        <div class="empty-state">
-          <div class="empty-icon">📋</div>
-          <div class="empty-title">데이터 없음</div>
+        <div class="sidebar-bottom-buttons">
+          <div id="sheetStatusBadge" style="display:none;" class="badge badge-green">
+            <span id="connectedSheetIdLabel">–</span>
+          </div>
+          <button class="btn btn-ghost btn-xs" id="btnChangeSheet" style="display:none;">시트 변경</button>
+          <button class="btn btn-ghost btn-xs" id="btnSettings">⚙️ 설정</button>
         </div>
       </div>
     </aside>
@@ -169,8 +168,7 @@
         <div class="selection-bar" id="selectionBar">
           <span class="selection-info" id="selectionInfo">0명 선택됨</span>
           <div class="selection-actions">
-            <button class="btn btn-ghost btn-sm" id="btnPreviewFirst" style="color:white;border-color:rgba(255,255,255,0.3);">👁️ 미리보기</button>
-            <button class="btn btn-success btn-sm" id="btnPrintAll">🖨️ 전체 인쇄</button>
+            <button class="btn btn-primary btn-sm" id="btnPrintSelected">🖨️ 선택 인쇄</button>
           </div>
         </div>
 
@@ -182,20 +180,35 @@
             <h2 style="font-size:20px;font-weight:800;margin-bottom:8px;color:#1E293B;">월말평가 레포트 생성기</h2>
             <p style="color:#64748B;margin-bottom:20px;font-size:14px;">먼저 구글 시트를 연동해주세요.</p>
             <button class="btn btn-primary" id="welcomeSheetBtn" style="padding:10px 24px;font-size:14px;">⚙️ 시트 설정하기</button>
+            <div style="margin-top:12px;">
+              <button class="btn btn-ghost" id="btnLoadMockData" style="font-size:12px;color:#94A3B8;border:1px dashed #CBD5E1;">🧪 개발용 테스트 데이터 로드</button>
+            </div>
           </div>
           <!-- 시트 연결됨: 자동 로드 -->
           <div id="welcomeAutoLoad" style="display:none;">
             <div style="font-size:48px;margin-bottom:16px;">📊</div>
-            <h2 style="font-size:20px;font-weight:800;margin-bottom:8px;color:#1E293B;">월말평가 레포트 생성기</h2>
-            <p style="color:#64748B;margin-bottom:20px;font-size:14px;line-height:1.7;" id="autoLoadLabel">최신 데이터를 불러옵니다</p>
+            <h2 style="font-size:20px;font-weight:800;margin-bottom:12px;color:#1E293B;">월말평가 레포트 생성기</h2>
+            <p style="color:#64748B;margin-bottom:6px;font-size:14px;line-height:1.7;" id="autoLoadLabel">최신 데이터를 불러옵니다</p>
+            <p style="color:#94A3B8;margin-bottom:24px;font-size:12px;">왼쪽 패널에서 기준월을 바꿀 수 있습니다</p>
             <button class="btn btn-primary" id="btnAutoLoad" style="padding:12px 32px;font-size:15px;font-weight:800;">
               🔄 최신 월 불러오기
             </button>
+            <div style="margin-top:10px;">
+              <button class="btn btn-ghost" id="btnLoadMockData2" style="font-size:12px;color:#94A3B8;border:1px dashed #CBD5E1;">🧪 개발용 테스트 데이터 로드</button>
+            </div>
+            <div style="margin-top:24px;padding:14px;background:#f0f4f8;border-radius:10px;max-width:400px;margin-left:auto;margin-right:auto;text-align:left;">
+              <div style="font-size:11px;font-weight:700;color:#1e2a6d;margin-bottom:6px;">💡 사용 순서</div>
+              <div style="font-size:12px;color:#4a5568;line-height:1.8;">
+                1. 위 버튼 클릭 → 구글 시트에서 데이터 불러오기<br>
+                2. 선생님/학년 필터로 원하는 학생 선택<br>
+                3. 🖨️ 인쇄 버튼으로 레포트 출력
+              </div>
+            </div>
           </div>
           <!-- 로딩 중 -->
           <div id="welcomeLoading" style="display:none;">
             <div class="loading-spinner" style="width:32px;height:32px;margin:0 auto 16px;border-width:3px;"></div>
-            <div style="font-size:14px;color:#64748B;" id="centerLoadingMsg">구글 시트에서 불러오는 중...</div>
+            <div style="font-size:14px;color:#64748B;font-weight:600;" id="centerLoadingMsg">구글 시트에서 불러오는 중...</div>
           </div>
         </div>
 
@@ -315,10 +328,10 @@
             <button class="btn btn-primary" id="btnSaveSettings">💾 설정 저장</button>
           </div>
 
-          <!-- 선생님별 색상 -->
+          <!-- 학년별 색상 -->
           <div class="settings-card">
-            <div class="settings-card-title">🎨 선생님별 색상</div>
-            <div class="teacher-color-list" id="teacherColorList">
+            <div class="settings-card-title">🎨 학년별 카드 색상</div>
+            <div class="grade-color-list" id="gradeColorList">
               <div style="color:#94A3B8;font-size:13px;padding:12px 0;text-align:center;">데이터를 먼저 불러와주세요</div>
             </div>
           </div>
@@ -369,15 +382,6 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script type="module">
-import { parseCSV, getTeachers, getSchools, getGrades, getMonths } from './js/parser.js';
-import AppStore, { makeKey, DEFAULT_TEACHER_COLORS } from './js/store.js';
-import { buildReportCard, renderCharts, destroyAllCharts } from './js/renderer.js';
-import { printReports, previewReport } from './js/print.js';
-import {
-  extractSheetId, fetchSheetTab, fetchTabList, validateConnection,
-  isValidScriptUrl, makeTabName, tabNameToNotionMonth
-} from './js/googleSheets.js';
-
 // ── 초기화 ──────────────────────────────────────────────────
 AppStore.loadSettings();
 let appState = AppStore.getState();
@@ -392,15 +396,58 @@ if (appState.logoBase64) {
 }
 
 // 구글 시트 설정 복원
-const savedScriptUrl = localStorage.getItem('mg_script_url') || '';
-const savedSheetId   = localStorage.getItem('mg_sheet_id')   || '';
+const savedScriptUrl = localStorage.getItem('mg_script_url') || 'https://script.google.com/macros/s/AKfycbw4UtQ4RYt8wCJKfsWyjRZHdoj8bm1SSKee9m67qcg3yd7fF0UWpl5jwRWZRfDbCV_PZw/exec';
+const savedSheetId   = localStorage.getItem('mg_sheet_id')   || '1Nc-oLHAy-nq8tu0fpJCV74ydY1a9K4hk65SFW4xayz4';
 if (savedScriptUrl) document.getElementById('inputScriptUrl').value = savedScriptUrl;
 if (savedSheetId)   document.getElementById('inputSheetId').value   = savedSheetId;
 if (savedScriptUrl && savedSheetId) {
+  if (!localStorage.getItem('mg_script_url')) localStorage.setItem('mg_script_url', savedScriptUrl);
+  if (!localStorage.getItem('mg_sheet_id')) localStorage.setItem('mg_sheet_id', savedSheetId);
+  document.getElementById('inputScriptUrl').value = savedScriptUrl;
+  document.getElementById('inputSheetId').value = savedSheetId;
   initSheetPanel(savedScriptUrl, savedSheetId);
-  // 시트 연동됨 → 환영화면에 자동 로드 버튼 표시
-  document.getElementById('welcomeNoSheet').style.display = 'none';
-  document.getElementById('welcomeAutoLoad').style.display = '';
+
+  // 캐시 복원 시도
+  let cacheRestored = false;
+  try {
+    const raw = localStorage.getItem('mg_students_cache');
+    if (raw) {
+      const cache = JSON.parse(raw);
+      if (cache.sheetId === savedSheetId && Array.isArray(cache.students) && cache.students.length > 0) {
+        AppStore.setAllStudents(cache.students, `구글시트:${cache.tabName}`);
+        const notionMonth = tabNameToNotionMonth(cache.tabName);
+        if (notionMonth) AppStore.setSelectedMonth(notionMonth);
+
+        // 월 칩 표시
+        const uniqueMonths = [...new Set(cache.students.map(s => s.month).filter(Boolean))];
+        uniqueMonths.sort((a, b) => {
+          const parse = m => { const r = m.match(/(\d+)년\s*(\d+)월/); return r ? +r[1]*100 + +r[2] : 0; };
+          return parse(a) - parse(b);
+        });
+        const panel = document.getElementById('loadedMonthsPanel');
+        const chips = document.getElementById('loadedMonthChips');
+        panel.style.display = '';
+        chips.innerHTML = uniqueMonths.map(m =>
+          `<span class="loaded-month-chip ${m === notionMonth ? 'current' : ''}">${m}</span>`
+        ).join('');
+
+        document.getElementById('studentPanel').style.display = '';
+        document.getElementById('welcomeScreen').style.display = 'none';
+
+        const mins = Math.round((Date.now() - cache.savedAt) / 60000);
+        const timeLabel = mins < 1 ? '방금' : mins < 60 ? `${mins}분 전` : `${Math.round(mins/60)}시간 전`;
+        showToast(`📦 캐시 데이터 복원 (${timeLabel} 저장됨) — 최신 데이터는 🔄 불러오기를 눌러주세요`, 'info');
+
+        renderAll();
+        cacheRestored = true;
+      }
+    }
+  } catch (e) { console.warn('[캐시 복원 실패]', e.message); }
+
+  if (!cacheRestored) {
+    document.getElementById('welcomeNoSheet').style.display = 'none';
+    document.getElementById('welcomeAutoLoad').style.display = '';
+  }
 } else {
   document.getElementById('welcomeNoSheet').style.display = '';
   document.getElementById('welcomeAutoLoad').style.display = 'none';
@@ -435,21 +482,62 @@ function initSheetPanel(scriptUrl, sheetId) {
   document.getElementById('sheetStatusBadge').style.display = '';
   document.getElementById('btnChangeSheet').style.display = '';
 
-  populateSheetMonthSelect();
+  populateSheetMonthSelect(scriptUrl, sheetId);
 }
 
-function populateSheetMonthSelect() {
+async function populateSheetMonthSelect(scriptUrl, sheetId) {
   const sel = document.getElementById('sheetMonthSelect');
-  sel.innerHTML = '<option value="">📅 기준월 선택...</option>';
-  const now = new Date();
-  for (let i = 0; i < 12; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const tabName = makeTabName(d.getFullYear(), d.getMonth() + 1);
-    const opt = document.createElement('option');
-    opt.value = tabName;
-    opt.textContent = `${d.getFullYear()}년 ${d.getMonth() + 1}월`;
-    if (i === 0) opt.selected = true;
-    sel.appendChild(opt);
+  sel.innerHTML = '<option value="">탭 목록 불러오는 중...</option>';
+  sel.disabled = true;
+
+  try {
+    // 실제 시트 탭 목록 가져오기
+    const tabs = await fetchTabList(scriptUrl, sheetId);
+    const monthTabs = tabs
+      .filter(t => /^\d{4}-\d{2}$/.test(t))
+      .sort()
+      .reverse(); // 최신순
+
+    sel.innerHTML = '';
+    if (monthTabs.length === 0) {
+      sel.innerHTML = '<option value="">데이터 탭 없음</option>';
+      sel.disabled = true;
+      return;
+    }
+
+    monthTabs.forEach((tab, i) => {
+      const m = tab.match(/^(\d{4})-(\d{2})$/);
+      const opt = document.createElement('option');
+      opt.value = tab;
+      opt.textContent = `${m[1]}년 ${Number(m[2])}월`;
+      if (i === 0) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.disabled = false;
+
+    // 환영 화면에 최신 월 표시
+    const latest = monthTabs[0];
+    const lm = latest.match(/^(\d{4})-(\d{2})$/);
+    const autoLabel = document.getElementById('autoLoadLabel');
+    if (autoLabel && lm) {
+      autoLabel.textContent = `최신 데이터: ${lm[1]}년 ${Number(lm[2])}월`;
+    }
+
+  } catch (e) {
+    console.warn('탭 목록 조회 실패, 수동 입력 모드:', e.message);
+    // 폴백: 최근 12개월
+    sel.innerHTML = '<option value="">📅 기준월 선택...</option>';
+    const now = new Date();
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const tabName = makeTabName(d.getFullYear(), d.getMonth() + 1);
+      const opt = document.createElement('option');
+      opt.value = tabName;
+      opt.textContent = `${d.getFullYear()}년 ${d.getMonth() + 1}월`;
+      if (i === 0) opt.selected = true;
+      sel.appendChild(opt);
+    }
+    sel.disabled = false;
   }
 }
 
@@ -511,17 +599,21 @@ async function loadFromSheet(tabName) {
       allTabs = [...prevTabs, tabName];
     }
 
-    // 탭별 데이터 로드
-    for (let i = 0; i < allTabs.length; i++) {
-      setMsg(`(${i+1}/${allTabs.length}) ${allTabs[i]} 불러오는 중...`);
-      try {
-        const csvText = await fetchSheetTab(scriptUrl, sheetId, allTabs[i]);
-        const parsed  = parseCSV(csvText);
+    // 3. 탭별 데이터 병렬 로드
+    const firstMonth = tabNameToNotionMonth(allTabs[0]);
+    const lastMonth  = tabNameToNotionMonth(allTabs[allTabs.length - 1]);
+    setMsg(`${firstMonth} ~ ${lastMonth} (${allTabs.length}개월) 불러오는 중...`);
+    const results = await Promise.allSettled(
+      allTabs.map(tab => fetchSheetTab(scriptUrl, sheetId, tab))
+    );
+    results.forEach((result, i) => {
+      if (result.status === 'fulfilled') {
+        const parsed = parseCSV(result.value);
         if (parsed.length > 0) allStudents = allStudents.concat(parsed);
-      } catch (tabErr) {
-        console.info(`[탭 없음] ${allTabs[i]}:`, tabErr.message);
+      } else {
+        console.info(`[탭 없음] ${allTabs[i]}:`, result.reason?.message);
       }
-    }
+    });
 
     if (allStudents.length === 0) {
       throw new Error(`데이터가 없습니다. 기준월 탭(${tabName})을 확인해주세요.`);
@@ -530,6 +622,13 @@ async function loadFromSheet(tabName) {
     AppStore.setAllStudents(allStudents, `구글시트:${tabName}`);
     const loadedTabs = allTabs.filter(t => allStudents.some(s => s.month === tabNameToNotionMonth(t)));
     showToast(`✅ ${allStudents.length}건 로드 완료! (${loadedTabs.length}개월 데이터)`, 'success');
+
+    // 캐시 저장
+    try {
+      localStorage.setItem('mg_students_cache', JSON.stringify({
+        sheetId, tabName, students: allStudents, savedAt: Date.now()
+      }));
+    } catch (e) { console.warn('[캐시 저장 실패]', e.message); }
 
     const notionMonth = tabNameToNotionMonth(tabName);
     if (notionMonth) AppStore.setSelectedMonth(notionMonth);
@@ -540,11 +639,11 @@ async function loadFromSheet(tabName) {
     panel.style.display = '';
     chips.innerHTML = loadedTabs.map(t => {
       const isCur = t === tabName;
-      return `<span class="loaded-month-chip ${isCur ? 'current' : 'loaded'}">${tabNameToNotionMonth(t)}</span>`;
+      return `<span class="loaded-month-chip ${isCur ? 'current' : ''}">${tabNameToNotionMonth(t)}</span>`;
     }).join('');
 
-    // 학생 사이드바 표시
-    document.getElementById('studentSidebar').style.display = '';
+    // 학생 패널 표시
+    document.getElementById('studentPanel').style.display = '';
 
     renderAll();
 
@@ -558,6 +657,77 @@ async function loadFromSheet(tabName) {
   }
 }
 
+// ── 개발용 Mock 데이터 ────────────────────────────────────
+function makeMockStudent(id, month, name, teacher, school, grade, score, opts = {}) {
+  const present = opts.present ?? 8;
+  const late    = opts.late    ?? 1;
+  const absent  = opts.absent  ?? 0;
+  const total   = present + late + absent;
+  const att  = [present, late, absent, total];
+  const att2 = [opts.att2_3 ?? 6, opts.att2_2 ?? 2, opts.att2_1 ?? 1, opts.att2Pct ?? 88];
+  const hw   = [opts.hw_3 ?? 7, opts.hw_2 ?? 1, opts.hw_1 ?? 1, opts.hw_0 ?? 0, opts.hwPct ?? 90];
+  return {
+    id, month, name, teacher, school, grade,
+    score: score ?? null,
+    scope: opts.scope ?? '수학Ⅰ · 수학Ⅱ',
+    dateStart: '26.03.01', dateEnd: '26.03.31',
+    att, att2, hw,
+    progress: opts.progress ?? '삼각함수 완료, 수열 진행 중',
+    comment:  opts.comment  ?? '꾸준히 성장하고 있습니다.',
+    attStats:  calcAttStats(att),
+    att2Stats: calcRatingStats(att2, 3),
+    hwStats:   calcRatingStats(hw, 4),
+  };
+}
+
+function loadMockData() {
+  const months = ['2026년 1월', '2026년 2월', '2026년 3월'];
+  const students = [];
+
+  const roster = [
+    { id:'S001', name:'김민준', teacher:'이선생', school:'한빛중', grade:'중3', scores:[82,87,91] },
+    { id:'S002', name:'박서연', teacher:'이선생', school:'한빛중', grade:'중3', scores:[76,80,85], comment:'수학에 대한 자신감이 늘었습니다.' },
+    { id:'S003', name:'이도윤', teacher:'김선생', school:'성심중', grade:'중2', scores:[90,92,95], att2Pct:96, hwPct:98, comment:'모든 면에서 모범적입니다.' },
+    { id:'S004', name:'정하은', teacher:'김선생', school:'성심중', grade:'중2', scores:[65,70,null], late:2, absent:1 },
+    { id:'S005', name:'최준혁', teacher:'박선생', school:'미래고', grade:'고1', scores:[88,85,90] },
+    { id:'S006', name:'윤서현', teacher:'박선생', school:'미래고', grade:'고1', scores:[72,78,82], progress:'미적분 개념 정리 중' },
+    { id:'S007', name:'장민서', teacher:'이선생', school:'한빛중', grade:'중3', scores:[55,60,68], att2Pct:70, hwPct:65, comment:'집중력 개선이 필요합니다.' },
+    { id:'S008', name:'한지우', teacher:'김선생', school:'성심중', grade:'중2', scores:[93,95,98], comment:'최상위권 유지 중입니다.' },
+    { id:'S009', name:'오현준', teacher:'박선생', school:'미래고', grade:'고2', scores:[79,83,87] },
+    { id:'S010', name:'신유나', teacher:'박선생', school:'미래고', grade:'고2', scores:[null,85,89] },
+  ];
+
+  months.forEach(month => {
+    roster.forEach(r => {
+      const mIdx = months.indexOf(month);
+      students.push(makeMockStudent(
+        r.id, month, r.name, r.teacher, r.school, r.grade, r.scores[mIdx],
+        { comment: r.comment, progress: r.progress,
+          late: r.late, absent: r.absent,
+          att2Pct: r.att2Pct, hwPct: r.hwPct }
+      ));
+    });
+  });
+
+  AppStore.setAllStudents(students, 'mock:2026-03');
+  AppStore.setSelectedMonth('2026년 3월');
+
+  const panel = document.getElementById('loadedMonthsPanel');
+  const chips  = document.getElementById('loadedMonthChips');
+  panel.style.display = '';
+  chips.innerHTML = months.map((m, i) =>
+    `<span class="loaded-month-chip ${i === months.length - 1 ? 'current' : ''}">${m}</span>`
+  ).join('');
+
+  document.getElementById('studentPanel').style.display = '';
+  document.getElementById('welcomeNoSheet').style.display = 'none';
+  showToast('🧪 테스트 데이터 로드 완료! (학생 ' + roster.length + '명 × ' + months.length + '개월)', 'success');
+  renderAll();
+}
+
+document.getElementById('btnLoadMockData').addEventListener('click', loadMockData);
+document.getElementById('btnLoadMockData2').addEventListener('click', loadMockData);
+
 // 사이드바 불러오기 버튼
 document.getElementById('btnLoadFromSheet').addEventListener('click', () => {
   const tabName = document.getElementById('sheetMonthSelect').value;
@@ -568,8 +738,15 @@ document.getElementById('btnLoadFromSheet').addEventListener('click', () => {
 // 중앙 자동 로드 버튼
 document.getElementById('btnAutoLoad').addEventListener('click', () => {
   const sel = document.getElementById('sheetMonthSelect');
-  const tabName = sel.value || sel.options[1]?.value; // 첫 번째 실제 옵션 (최신월)
+  // 드롭다운에서 첫 번째 실제 옵션 (최신 탭) 사용
+  let tabName = sel.value;
+  if (!tabName && sel.options.length > 0) {
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value) { tabName = sel.options[i].value; break; }
+    }
+  }
   if (tabName) loadFromSheet(tabName);
+  else showToast('시트에 데이터 탭이 없습니다.', 'warning');
 });
 
 // ── 구글 시트 설정 ─────────────────────────────────────
@@ -640,18 +817,6 @@ function renderAll() {
   const s = AppStore.getState();
   if (!s.isLoaded) return;
 
-  const months = getMonths(s.allStudents);
-  const monthSelect = document.getElementById('monthSelect');
-  monthSelect.disabled = false;
-  monthSelect.innerHTML = '<option value="">📅 시행월 선택...</option>';
-  months.forEach(m => {
-    const opt = document.createElement('option');
-    opt.value = m;
-    opt.textContent = m;
-    if (m === s.selectedMonth) opt.selected = true;
-    monthSelect.appendChild(opt);
-  });
-
   ['searchInput','btnSelectAll'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.disabled = false;
@@ -659,13 +824,42 @@ function renderAll() {
 
   renderFilterChips(s);
   renderStudentList(s);
+  renderSelectionSummary(s);
   renderReportCards(s);
   updateStats(s);
-  renderTeacherColorList(s);
+  renderGradeColorList(s);
 
   if (s.selectedMonth) {
     document.getElementById('appSubtitle').textContent = `${s.selectedMonth} · ${s.currentMonthStudents.length}명`;
   }
+}
+
+// ── 선택 요약 표시 ──────────────────────────────────────────
+function renderSelectionSummary(s) {
+  const panel = document.getElementById('selectionSummary');
+  const count = document.getElementById('selectionSummaryCount');
+  const list = document.getElementById('selectionSummaryList');
+
+  if (s.selectedStudentIds.size === 0) {
+    panel.style.display = 'none';
+    return;
+  }
+
+  panel.style.display = '';
+  count.textContent = `${s.selectedStudentIds.size}명 선택됨`;
+
+  // 선택된 학생 이름 태그 (전체 학생에서 찾기)
+  const selectedStudents = s.currentMonthStudents.filter(st => s.selectedStudentIds.has(makeKey(st)));
+  list.innerHTML = selectedStudents.map(st => {
+    return `<span class="selection-tag" data-key="${makeKey(st)}">${st.name}<span class="tag-x">✕</span></span>`;
+  }).join('');
+
+  list.querySelectorAll('.selection-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      AppStore.toggleSelect(tag.dataset.key);
+      renderAll();
+    });
+  });
 }
 
 function renderFilterChips(s) {
@@ -683,9 +877,8 @@ function renderFilterChips(s) {
   tc.innerHTML = `<button class="filter-chip ${allTeacherActive ? 'active' : ''}" data-action="clear-teacher">전체</button>`
     + teachers.map(t => {
       const active = s.filterTeachers.has(t);
-      const color = getTeacherColor(t, s);
       const count = monthStudents.filter(st => st.teacher === t).length;
-      return `<button class="filter-chip ${active ? 'active' : ''}" data-teacher="${t}"><span class="chip-dot" style="background:${color};"></span>${t} <span class="chip-count">${count}</span></button>`;
+      return `<button class="filter-chip ${active ? 'active' : ''}" data-teacher="${t}">${t} <span class="chip-count">${count}</span></button>`;
     }).join('');
 
   tc.querySelectorAll('[data-teacher]').forEach(btn => {
@@ -699,8 +892,9 @@ function renderFilterChips(s) {
   gc.innerHTML = `<button class="filter-chip ${allGradeActive ? 'active' : ''}" data-action="clear-grade">전체</button>`
     + grades.map(g => {
       const active = s.filterGrades.has(g);
+      const color = getGradeColor(g, s);
       const count = monthStudents.filter(st => st.grade === g).length;
-      return `<button class="filter-chip ${active ? 'active' : ''}" data-grade="${g}">${g} <span class="chip-count">${count}</span></button>`;
+      return `<button class="filter-chip ${active ? 'active' : ''}" data-grade="${g}"><span class="chip-dot" style="background:${color};"></span>${g} <span class="chip-count">${count}</span></button>`;
     }).join('');
 
   gc.querySelectorAll('[data-grade]').forEach(btn => {
@@ -724,7 +918,7 @@ function renderStudentList(s) {
   list.innerHTML = students.map(student => {
     const key = makeKey(student);
     const isSelected = s.selectedStudentIds.has(key);
-    const color = getTeacherColor(student.teacher, s);
+    const color = getGradeColor(student.grade, s);
     const scoreCls = getScoreClass(student.score);
     const scoreLabel = student.score !== null ? `${student.score}점` : '–';
 
@@ -776,15 +970,16 @@ function renderReportCards(s) {
   cardUidMap.clear();
   grid.innerHTML = '';
 
-  // 선택된 학생이 있으면 선택된 것만, 없으면 필터된 전체
+  // 선택된 학생이 있으면 전체 월 학생에서 선택된 것만 (필터 무관)
+  // 없으면 필터된 학생 전체
   const showStudents = s.selectedStudentIds.size > 0
-    ? s.filteredStudents.filter(st => s.selectedStudentIds.has(makeKey(st)))
+    ? s.currentMonthStudents.filter(st => s.selectedStudentIds.has(makeKey(st)))
     : s.filteredStudents;
   const preview = showStudents.slice(0, 50);
 
   preview.forEach(student => {
-    const color    = getTeacherColor(student.teacher, s);
-    const settings = { academyName: s.academyName, logoBase64: s.logoBase64, teacherColors: s.teacherColors };
+    const color    = getGradeColor(student.grade, s);
+    const settings = { academyName: s.academyName, logoBase64: s.logoBase64, gradeColors: s.gradeColors };
     const uid      = `card_${student.id}_${Date.now()}_${Math.random().toString(36).slice(2,5)}`;
     const html     = buildReportCard(student, s.allStudents, color, settings, uid);
 
@@ -810,7 +1005,7 @@ function renderReportCards(s) {
   if (showStudents.length > 50) {
     const more = document.createElement('div');
     more.style.cssText = 'grid-column:1/-1;text-align:center;color:#94A3B8;padding:16px;font-size:13px;';
-    more.textContent = `+ ${showStudents.length - 50}명 더 있습니다. 인쇄 시 전체 포함됩니다.`;
+    more.textContent = `화면에는 50명까지만 표시됩니다. 나머지 ${showStudents.length - 50}명은 인쇄 버튼을 누르면 전체 출력됩니다.`;
     grid.appendChild(more);
   }
 
@@ -818,7 +1013,7 @@ function renderReportCards(s) {
   setTimeout(() => {
     preview.forEach(student => {
       const uid   = cardUidMap.get(makeKey(student));
-      const color = getTeacherColor(student.teacher, s);
+      const color = getGradeColor(student.grade, s);
       renderCharts(student, s.allStudents, color, uid);
     });
   }, 200);
@@ -826,9 +1021,12 @@ function renderReportCards(s) {
   grid.querySelectorAll('[data-action]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const student = s.filteredStudents.find(st => makeKey(st) === btn.dataset.key);
+      const showStudents2 = s.selectedStudentIds.size > 0
+        ? s.currentMonthStudents.filter(st => s.selectedStudentIds.has(makeKey(st)))
+        : s.filteredStudents;
+      const student = showStudents2.find(st => makeKey(st) === btn.dataset.key);
       if (!student) return;
-      const color = getTeacherColor(student.teacher, s);
+      const color = getGradeColor(student.grade, s);
       if (btn.dataset.action === 'preview') {
         previewReport(student, s.allStudents, color);
       } else if (btn.dataset.action === 'print-single') {
@@ -864,50 +1062,50 @@ function updateStats(s) {
   if (s.selectedStudentIds.size > 0) {
     selBar.classList.add('visible');
     document.getElementById('selectionInfo').textContent = `${s.selectedStudentIds.size}명 선택됨`;
-    document.getElementById('btnPrintSelected').disabled = false;
   } else {
     selBar.classList.remove('visible');
-    document.getElementById('btnPrintSelected').disabled = true;
   }
+  const btnPrintAllFiltered = document.getElementById('btnPrintAllFiltered');
+  if (btnPrintAllFiltered) btnPrintAllFiltered.style.display = s.isLoaded ? '' : 'none';
 }
 
-function renderTeacherColorList(s) {
-  const container = document.getElementById('teacherColorList');
-  const teachers = getTeachers(s.allStudents);
+function renderGradeColorList(s) {
+  const container = document.getElementById('gradeColorList');
+  const grades = getGrades(s.allStudents);
 
-  if (teachers.length === 0) {
+  if (grades.length === 0) {
     container.innerHTML = '<div style="color:#94A3B8;font-size:13px;padding:12px 0;text-align:center;">데이터를 먼저 불러와주세요</div>';
     return;
   }
 
-  container.innerHTML = teachers.map(teacher => {
-    const currentColor = getTeacherColor(teacher, s);
+  container.innerHTML = grades.map(grade => {
+    const currentColor = getGradeColor(grade, s);
     return `
-    <div class="teacher-color-item">
-      <div class="teacher-color-name">${teacher}</div>
+    <div class="grade-color-item">
+      <div class="grade-color-name">${grade}</div>
       <div class="color-presets">
-        ${DEFAULT_TEACHER_COLORS.map(c => `
+        ${DEFAULT_GRADE_COLORS.map(c => `
           <button class="color-preset-btn ${currentColor === c.value ? 'active' : ''}"
             style="background:${c.value};" title="${c.name}"
-            data-teacher="${teacher}" data-color="${c.value}">
+            data-grade="${grade}" data-color="${c.value}">
           </button>`).join('')}
         <input type="color" class="color-custom-input"
-          value="${currentColor}" data-teacher="${teacher}" title="커스텀 색상">
+          value="${currentColor}" data-grade="${grade}" title="커스텀 색상">
       </div>
-      <div class="teacher-color-preview" style="background:${currentColor};"></div>
+      <div class="grade-color-preview" style="background:${currentColor};"></div>
     </div>`;
   }).join('');
 
   container.querySelectorAll('.color-preset-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      AppStore.setTeacherColor(btn.dataset.teacher, btn.dataset.color);
+      AppStore.setGradeColor(btn.dataset.grade, btn.dataset.color);
       renderAll();
     });
   });
 
   container.querySelectorAll('.color-custom-input').forEach(input => {
     input.addEventListener('input', () => {
-      AppStore.setTeacherColor(input.dataset.teacher, input.value);
+      AppStore.setGradeColor(input.dataset.grade, input.value);
       renderAll();
     });
   });
@@ -915,11 +1113,6 @@ function renderTeacherColorList(s) {
 
 // ── 공통 이벤트 ──────────────────────────────────────────
 document.getElementById('sortSelect').addEventListener('change', () => renderAll());
-
-document.getElementById('monthSelect').addEventListener('change', (e) => {
-  AppStore.setSelectedMonth(e.target.value);
-  renderAll();
-});
 
 document.getElementById('searchInput').addEventListener('input', (e) => {
   AppStore.setFilter('filterSearch', e.target.value);
@@ -934,20 +1127,19 @@ document.getElementById('btnClearSelection').addEventListener('click', () => {
   AppStore.clearSelection(); renderAll();
 });
 
+document.getElementById('btnClearAll').addEventListener('click', () => {
+  AppStore.clearSelection(); renderAll();
+});
+
 document.getElementById('btnPrintSelected').addEventListener('click', () => {
   printReports(AppStore.getSelectedStudents(), AppStore.getState().allStudents);
 });
 
-document.getElementById('btnPrintAll').addEventListener('click', () => {
-  printReports(AppStore.getSelectedStudents(), AppStore.getState().allStudents);
+document.getElementById('btnPrintAllFiltered').addEventListener('click', () => {
+  const s = AppStore.getState();
+  printReports(s.filteredStudents, s.allStudents);
 });
 
-document.getElementById('btnPreviewFirst').addEventListener('click', () => {
-  const selected = AppStore.getSelectedStudents();
-  if (!selected.length) return;
-  const s = AppStore.getState();
-  previewReport(selected[0], s.allStudents, getTeacherColor(selected[0].teacher, s));
-});
 
 document.getElementById('btnSettings').addEventListener('click', switchToSettingsTab);
 
@@ -966,6 +1158,10 @@ document.getElementById('logoUploadArea').addEventListener('click', () => {
 document.getElementById('logoInput').addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showToast('이미지 파일만 업로드할 수 있습니다. (PNG, JPG, SVG 등)', 'warning');
+    return;
+  }
   if (file.size > 500 * 1024) {
     showToast('로고 파일이 너무 큽니다. 500KB 이하로 업로드해주세요.', 'warning');
     return;
@@ -1016,16 +1212,13 @@ function sortStudents(students) {
   return sorted;
 }
 
-function gradeOrder(grade) {
-  const map = {'초1':1,'초2':2,'초3':3,'초4':4,'초5':5,'초6':6,'중1':7,'중2':8,'중3':9,'고1':10,'고2':11,'고3':12};
-  return map[grade] || 99;
-}
 
-function getTeacherColor(teacher, s) {
-  if (s.teacherColors && s.teacherColors[teacher]) return s.teacherColors[teacher];
-  const colors = DEFAULT_TEACHER_COLORS.map(c => c.value);
-  const teachers = [...new Set((s.allStudents || []).map(st => st.teacher).filter(Boolean))].sort();
-  return colors[teachers.indexOf(teacher) % colors.length] || '#3B82F6';
+
+function getGradeColor(grade, s) {
+  if (s.gradeColors && s.gradeColors[grade]) return s.gradeColors[grade];
+  const colors = DEFAULT_GRADE_COLORS.map(c => c.value);
+  const grades = [...new Set((s.allStudents || []).map(st => st.grade).filter(Boolean))].sort();
+  return colors[grades.indexOf(grade) % colors.length] || '#3B82F6';
 }
 
 function getScoreClass(score) {

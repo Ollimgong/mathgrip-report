@@ -1970,7 +1970,6 @@ function gradeOrder(grade) {
   return map[grade] || 99;
 }
 
-
 // -- store.js --
 // ============================================================
 //  store.js — 앱 상태 관리
@@ -2212,7 +2211,6 @@ function getUniqueMonths(students) {
 
 // default export: AppStore;
 
-
 // -- googleSheets.js --
 // ============================================================
 //  googleSheets.js — 구글 앱스 스크립트 연동
@@ -2374,7 +2372,6 @@ function tabNameToNotionMonth(tabName) {
   if (!m) return tabName;
   return `${m[1]}년 ${Number(m[2])}월`;
 }
-
 
 // -- renderer.js --
 // ============================================================
@@ -2762,7 +2759,6 @@ function destroyAllCharts() {
   chartInstances.clear();
 }
 
-
 // -- print.js --
 // ============================================================
 //  print.js — PDF 출력 / 프린트 처리 (버그 수정 v2)
@@ -2953,9 +2949,7 @@ function autoFitCards(container) {
 }
 
 
-
 // -- index.html inline logic --
-
 
 // ── 초기화 ──────────────────────────────────────────────────
 AppStore.loadSettings();

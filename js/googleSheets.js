@@ -34,7 +34,7 @@
 /**
  * Apps Script URL 유효성 검사
  */
-export function isValidScriptUrl(url) {
+function isValidScriptUrl(url) {
   return typeof url === 'string' &&
     url.trim().startsWith('https://script.google.com/macros/s/');
 }
@@ -43,7 +43,7 @@ export function isValidScriptUrl(url) {
  * 구글 시트의 탭 목록을 가져오기
  * @returns {Promise<string[]>} 탭 이름 배열
  */
-export async function fetchTabList(scriptUrl, sheetId) {
+async function fetchTabList(scriptUrl, sheetId) {
   const url = `${scriptUrl.trim()}?sheet=${encodeURIComponent(sheetId)}&tab=__list__`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`탭 목록 조회 실패 (HTTP ${res.status})`);
@@ -69,7 +69,7 @@ export async function fetchTabList(scriptUrl, sheetId) {
  * @param {string} tabName   - 탭 이름 (예: "2026-03")
  * @returns {Promise<string>} CSV 텍스트 (한 줄 = MASTER 레코드)
  */
-export async function fetchSheetTab(scriptUrl, sheetId, tabName) {
+async function fetchSheetTab(scriptUrl, sheetId, tabName) {
   const url = `${scriptUrl.trim()}?sheet=${encodeURIComponent(sheetId)}&tab=${encodeURIComponent(tabName)}`;
 
   const res = await fetch(url);
@@ -100,7 +100,7 @@ export async function fetchSheetTab(scriptUrl, sheetId, tabName) {
  * @param {string} sheetId
  * @returns {Promise<{ok: boolean, message: string}>}
  */
-export async function validateConnection(scriptUrl, sheetId) {
+async function validateConnection(scriptUrl, sheetId) {
   if (!scriptUrl) return { ok: false, message: 'Apps Script URL을 입력해주세요.' };
   if (!isValidScriptUrl(scriptUrl)) {
     return { ok: false, message: 'URL 형식이 올바르지 않습니다.\nhttps://script.google.com/macros/s/... 형식이어야 해요.' };
@@ -134,7 +134,7 @@ export async function validateConnection(scriptUrl, sheetId) {
 /**
  * 구글 시트 URL 또는 ID에서 순수 ID만 추출
  */
-export function extractSheetId(input) {
+function extractSheetId(input) {
   if (!input) return '';
   const trimmed = input.trim();
   const match = trimmed.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
@@ -146,14 +146,14 @@ export function extractSheetId(input) {
 /**
  * "YYYY-MM" 형식의 탭 이름 생성
  */
-export function makeTabName(year, month) {
+function makeTabName(year, month) {
   return `${year}-${String(month).padStart(2, '0')}`;
 }
 
 /**
  * "YYYY-MM" → "2026년 3월" (Notion month 필드와 매칭)
  */
-export function tabNameToNotionMonth(tabName) {
+function tabNameToNotionMonth(tabName) {
   const m = tabName.match(/^(\d{4})-(\d{2})$/);
   if (!m) return tabName;
   return `${m[1]}년 ${Number(m[2])}월`;
