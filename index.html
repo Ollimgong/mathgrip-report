@@ -1385,9 +1385,6 @@ tr.rc-trend-current .rc-trend-td-score { color: var(--primary-dark); }
       </div>
     </div>
     <div class="app-header-right">
-      <button class="btn btn-primary btn-sm" id="btnPrintSelected" disabled>
-        🖨️ 선택 인쇄
-      </button>
     </div>
   </header>
 
@@ -1444,6 +1441,7 @@ tr.rc-trend-current .rc-trend-td-score { color: var(--primary-dark); }
             </select>
             <button class="btn btn-ghost btn-xs" id="btnSelectAll" disabled>전체</button>
             <button class="btn btn-ghost btn-xs" id="btnClearSelection" disabled>해제</button>
+            <button class="btn btn-primary btn-xs" id="btnPrintAllFiltered" style="display:none;">🖨️ 인쇄</button>
           </div>
         </div>
 
@@ -1533,8 +1531,7 @@ tr.rc-trend-current .rc-trend-td-score { color: var(--primary-dark); }
         <div class="selection-bar" id="selectionBar">
           <span class="selection-info" id="selectionInfo">0명 선택됨</span>
           <div class="selection-actions">
-            <button class="btn btn-ghost btn-sm" id="btnPreviewFirst" style="color:white;border-color:rgba(255,255,255,0.3);">👁️ 미리보기</button>
-            <button class="btn btn-success btn-sm" id="btnPrintAll">🖨️ 전체 인쇄</button>
+            <button class="btn btn-primary btn-sm" id="btnPrintSelected">🖨️ 선택 인쇄</button>
           </div>
         </div>
 
@@ -1559,6 +1556,9 @@ tr.rc-trend-current .rc-trend-td-score { color: var(--primary-dark); }
             <button class="btn btn-primary" id="btnAutoLoad" style="padding:12px 32px;font-size:15px;font-weight:800;">
               🔄 최신 월 불러오기
             </button>
+            <div style="margin-top:10px;">
+              <button class="btn btn-ghost" id="btnLoadMockData2" style="font-size:12px;color:#94A3B8;border:1px dashed #CBD5E1;">🧪 개발용 테스트 데이터 로드</button>
+            </div>
             <div style="margin-top:24px;padding:14px;background:#f0f4f8;border-radius:10px;max-width:400px;margin-left:auto;margin-right:auto;text-align:left;">
               <div style="font-size:11px;font-weight:700;color:#1e2a6d;margin-bottom:6px;">💡 사용 순서</div>
               <div style="font-size:12px;color:#4a5568;line-height:1.8;">
@@ -2147,7 +2147,7 @@ const AppStore = (() => {
     },
 
     getSelectedStudents() {
-      return state.filteredStudents.filter(s =>
+      return state.currentMonthStudents.filter(s =>
         state.selectedStudentIds.has(makeKey(s))
       );
     },
@@ -3250,6 +3250,7 @@ function loadMockData() {
 }
 
 document.getElementById('btnLoadMockData').addEventListener('click', loadMockData);
+document.getElementById('btnLoadMockData2').addEventListener('click', loadMockData);
 
 // 사이드바 불러오기 버튼
 document.getElementById('btnLoadFromSheet').addEventListener('click', () => {
@@ -3585,11 +3586,11 @@ function updateStats(s) {
   if (s.selectedStudentIds.size > 0) {
     selBar.classList.add('visible');
     document.getElementById('selectionInfo').textContent = `${s.selectedStudentIds.size}명 선택됨`;
-    document.getElementById('btnPrintSelected').disabled = false;
   } else {
     selBar.classList.remove('visible');
-    document.getElementById('btnPrintSelected').disabled = true;
   }
+  const btnPrintAllFiltered = document.getElementById('btnPrintAllFiltered');
+  if (btnPrintAllFiltered) btnPrintAllFiltered.style.display = s.isLoaded ? '' : 'none';
 }
 
 function renderGradeColorList(s) {
@@ -3658,16 +3659,11 @@ document.getElementById('btnPrintSelected').addEventListener('click', () => {
   printReports(AppStore.getSelectedStudents(), AppStore.getState().allStudents);
 });
 
-document.getElementById('btnPrintAll').addEventListener('click', () => {
-  printReports(AppStore.getSelectedStudents(), AppStore.getState().allStudents);
+document.getElementById('btnPrintAllFiltered').addEventListener('click', () => {
+  const s = AppStore.getState();
+  printReports(s.filteredStudents, s.allStudents);
 });
 
-document.getElementById('btnPreviewFirst').addEventListener('click', () => {
-  const selected = AppStore.getSelectedStudents();
-  if (!selected.length) return;
-  const s = AppStore.getState();
-  previewReport(selected[0], s.allStudents, getGradeColor(selected[0].grade, s));
-});
 
 document.getElementById('btnSettings').addEventListener('click', switchToSettingsTab);
 
