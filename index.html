@@ -1,0 +1,3527 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>매쓰그립 수학학원 — 월말평가 레포트</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+/* ============================================================
+   매쓰그립 수학학원 — 월말평가 레포트 시스템 v3
+   테마: 메인 #19b1c6 / 서브 #1e2a6d / 슬로건 "손에 잡히는 수학"
+   ============================================================ */
+
+/* ── CSS 변수 ───────────────────────────────────────────────── */
+:root {
+  --primary:        #19b1c6;
+  --primary-dark:   #1298ab;
+  --primary-light:  #e0f7fa;
+  --primary-mid:    rgba(25,177,198,0.15);
+  --secondary:      #1e2a6d;
+  --secondary-light:#eef0f8;
+  --secondary-mid:  rgba(30,42,109,0.1);
+  --text-main:      #1a202c;
+  --text-sub:       #4a5568;
+  --text-muted:     #718096;
+  --text-light:     #a0aec0;
+  --bg:             #f0f4f8;
+  --bg-card:        #ffffff;
+  --border:         #e2e8f0;
+  --border-light:   #f1f5f9;
+  --shadow-sm:      0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:      0 4px 16px rgba(30,42,109,0.10);
+  --shadow-lg:      0 8px 32px rgba(30,42,109,0.15);
+  --radius-sm:      6px;
+  --radius-md:      12px;
+  --radius-lg:      16px;
+  --sidebar-w:      220px;
+  --sidebar-students-w: 260px;
+  --header-h:       56px;
+}
+
+/* ── Reset & Base ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text-main);
+  min-height: 100vh;
+}
+button { cursor: pointer; font-family: inherit; }
+input, select, textarea { font-family: inherit; }
+a { color: inherit; text-decoration: none; }
+
+/* ── 레이아웃 ─────────────────────────────────────────────── */
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── 헤더 ─────────────────────────────────────────────────── */
+.app-header {
+  height: var(--header-h);
+  background: var(--secondary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.app-logo {
+  width: 34px;
+  height: 34px;
+  background: var(--primary);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.app-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+}
+.app-subtitle {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  margin-top: 1px;
+}
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── 메인 레이아웃 ────────────────────────────────────────── */
+.main-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── 사이드바 ─────────────────────────────────────────────── */
+.sidebar {
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.sidebar-config {
+  width: var(--sidebar-w);
+  padding: 12px;
+}
+.sidebar-students {
+  width: var(--sidebar-students-w);
+}
+.sidebar-section-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--secondary);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary-light);
+}
+.config-group {
+  margin-bottom: 12px;
+}
+.config-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 5px;
+}
+.loaded-month-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+.loaded-month-chip {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+.loaded-month-chip.current {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+.loaded-month-chip.loaded {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  border-color: var(--primary);
+}
+.loaded-month-chip.future {
+  background: var(--bg);
+  color: var(--text-light);
+  border-color: var(--border-light);
+}
+.loaded-month-chip.empty {
+  background: #fef9c3;
+  color: #a16207;
+  border-color: #fde68a;
+}
+
+/* 소스 패널 */
+.source-panel {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* 시트 연결됨 박스 */
+.sheet-connected-box {
+  background: var(--primary-light);
+  border: 1.5px solid var(--primary);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.sheet-connected-info { display: flex; align-items: center; gap: 8px; }
+.sheet-connected-icon { font-size: 16px; }
+.sheet-connected-label { font-size: 10px; font-weight: 700; color: var(--primary-dark); text-transform: uppercase; letter-spacing: .05em; }
+.sheet-connected-id { font-size: 11px; color: var(--secondary); font-family: monospace; font-weight: 600; }
+
+/* 시트 가이드 박스 */
+.sheet-guide-box {
+  background: var(--secondary-light);
+  border: 1.5px dashed var(--secondary);
+  border-radius: var(--radius-sm);
+  padding: 16px 12px;
+  text-align: center;
+}
+.sheet-guide-icon { font-size: 24px; margin-bottom: 6px; }
+.sheet-guide-text { font-size: 12px; color: var(--secondary); line-height: 1.6; margin-bottom: 8px; }
+
+/* 시트 탭 선택기 (새 UI) */
+.sheet-month-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sheet-month-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.sheet-load-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* 연간 추이 박스 */
+.annual-box {
+  border-top: 1px solid var(--border-light);
+  padding-top: 8px;
+  margin-top: 4px;
+}
+.annual-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.annual-box-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+/* 로딩 박스 */
+.sheet-loading-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: var(--primary-light);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--primary-dark);
+}
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 월 선택기 */
+.month-selector {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+.month-selector select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-sub);
+  background: white;
+  font-family: inherit;
+}
+.month-selector select:focus { outline: none; border-color: var(--primary); }
+.month-selector select:disabled { background: var(--bg); color: var(--text-light); }
+
+/* 필터 패널 */
+.filter-panel {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.search-input, .filter-select {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-sub);
+  background: white;
+  transition: border-color .15s;
+}
+.search-input:focus, .filter-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-mid);
+}
+.search-input:disabled, .filter-select:disabled {
+  background: var(--bg);
+  color: var(--text-light);
+}
+
+/* 목록 헤더 */
+.student-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px 6px;
+  flex-shrink: 0;
+}
+.student-count { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
+.list-actions { display: flex; gap: 4px; align-items: center; }
+.sort-select {
+  padding: 3px 6px;
+  font-size: 11px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: white;
+  color: var(--text-sub);
+  font-family: inherit;
+  cursor: pointer;
+}
+.sort-select:focus { outline: none; border-color: var(--primary); }
+
+/* 학생 목록 */
+.student-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 6px 12px;
+}
+.student-list::-webkit-scrollbar { width: 3px; }
+.student-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.student-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .12s;
+  margin-bottom: 2px;
+}
+.student-item:hover { background: var(--primary-light); }
+.student-item.selected { background: var(--primary-light); border: 1px solid var(--primary); }
+.student-checkbox { width: 14px; height: 14px; accent-color: var(--primary); flex-shrink: 0; }
+.student-color-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.student-info { flex: 1; min-width: 0; }
+.student-name { font-size: 13px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.student-meta { font-size: 10px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.student-score-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.score-a { background: #dcfce7; color: #15803d; }
+.score-default { background: var(--bg); color: var(--text-sub); }
+.score-na { background: var(--bg); color: var(--text-light); }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 30px 12px; }
+.empty-icon { font-size: 32px; margin-bottom: 8px; }
+.empty-title { font-size: 13px; font-weight: 700; color: var(--text-sub); margin-bottom: 4px; }
+.empty-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+/* ── 메인 콘텐츠 ─────────────────────────────────────────── */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 탭 */
+.tabs {
+  display: flex;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.tab-btn {
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  border-bottom: 3px solid transparent;
+  transition: all .15s;
+  margin-bottom: -1px;
+}
+.tab-btn:hover { color: var(--primary); }
+.tab-btn.active { color: var(--secondary); border-bottom-color: var(--primary); }
+
+/* 탭 콘텐츠 */
+#tab-reports, #tab-settings {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+#tab-reports::-webkit-scrollbar,
+#tab-settings::-webkit-scrollbar { width: 6px; }
+#tab-reports::-webkit-scrollbar-thumb,
+#tab-settings::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── 칩 필터 바 ────────────────────────────────────────── */
+.chip-filter-bar {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.chip-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.chip-filter-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  min-width: 48px;
+  flex-shrink: 0;
+}
+.chip-filter-chips {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  background: white;
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: all .15s;
+  font-family: inherit;
+}
+.filter-chip:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+.filter-chip.active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: white;
+}
+.chip-count {
+  font-size: 10px;
+  opacity: 0.7;
+}
+.chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* 통계 바 */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.stat-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.stat-card-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+.stat-card-value { font-size: 24px; font-weight: 900; color: var(--secondary); }
+.stat-card-sub { font-size: 11px; color: var(--text-light); }
+
+/* 선택 바 */
+.selection-bar {
+  background: linear-gradient(135deg, var(--secondary) 0%, #2d3f96 100%);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  transform: translateY(-8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: all .25s cubic-bezier(.175,.885,.32,1.275);
+  box-shadow: var(--shadow-md);
+}
+.selection-bar.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+.selection-info { font-size: 13px; font-weight: 700; color: white; }
+.selection-actions { display: flex; gap: 8px; }
+
+/* 레포트 그리드 */
+.report-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+/* ── 공통 카드 ────────────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+/* ── 버튼 ─────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  transition: all .15s;
+  white-space: nowrap;
+  line-height: 1;
+}
+.btn:disabled { opacity: .45; pointer-events: none; }
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+.btn-primary:hover { background: var(--primary-dark); box-shadow: 0 3px 10px rgba(25,177,198,0.4); }
+.btn-secondary {
+  background: var(--secondary);
+  color: white;
+}
+.btn-secondary:hover { background: #263585; }
+.btn-success {
+  background: #22c55e;
+  color: white;
+}
+.btn-success:hover { background: #16a34a; }
+.btn-ghost {
+  background: transparent;
+  color: var(--text-sub);
+  border: 1.5px solid var(--border);
+}
+.btn-ghost:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-xs { padding: 4px 8px; font-size: 11px; border-radius: 5px; }
+
+/* 배지 */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.badge-green { background: #dcfce7; color: #15803d; }
+.badge-blue { background: #dbeafe; color: #1d4ed8; }
+.badge-primary { background: var(--primary-light); color: var(--primary-dark); }
+
+/* ── 설정 패널 ────────────────────────────────────────────── */
+.settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 680px;
+}
+.settings-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+}
+.settings-card-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--secondary);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--primary-light);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 구글 시트 가이드 */
+.gs-step {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.gs-step-num {
+  width: 24px;
+  height: 24px;
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.gs-step-title { font-size: 13px; font-weight: 700; color: var(--secondary); margin-bottom: 3px; }
+.gs-step-desc { font-size: 12px; color: var(--text-sub); line-height: 1.6; }
+
+/* 폼 */
+.form-group { margin-bottom: 12px; }
+.form-label { font-size: 12px; font-weight: 700; color: var(--text-sub); display: block; margin-bottom: 5px; }
+.form-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-main);
+  background: white;
+  transition: border-color .15s;
+}
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-mid);
+}
+
+/* 로고 업로드 */
+.logo-upload-area {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .15s;
+}
+.logo-upload-area:hover { border-color: var(--primary); background: var(--primary-light); }
+.logo-preview { max-height: 60px; max-width: 100%; object-fit: contain; }
+
+/* 선생님 색상 */
+.teacher-color-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.teacher-color-item:last-child { border-bottom: none; }
+.teacher-color-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--text-main); }
+.color-presets { display: flex; gap: 5px; align-items: center; }
+.color-preset-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: all .12s;
+}
+.color-preset-btn:hover, .color-preset-btn.active {
+  border-color: var(--secondary);
+  transform: scale(1.2);
+}
+.color-custom-input {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  cursor: pointer;
+  background: none;
+  overflow: hidden;
+}
+.teacher-color-preview { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); }
+
+/* Notion 방법 */
+.howto-step {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.howto-num {
+  width: 24px;
+  height: 24px;
+  background: var(--secondary-light);
+  color: var(--secondary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+/* ── 토스트 ────────────────────────────────────────────────── */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 9999;
+}
+.toast {
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp .25s ease;
+  max-width: 340px;
+}
+.toast-success { background: #dcfce7; color: #15803d; border: 1.5px solid #86efac; }
+.toast-error { background: #fee2e2; color: #dc2626; border: 1.5px solid #fca5a5; }
+.toast-warning { background: #fef9c3; color: #92400e; border: 1.5px solid #fde68a; }
+.toast-info { background: var(--primary-light); color: var(--primary-dark); border: 1.5px solid #99e6ef; }
+@keyframes slideUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+
+/* ── 환영 화면 ─────────────────────────────────────────────── */
+.welcome-method-card {
+  border-radius: var(--radius-md);
+  padding: 20px;
+  cursor: pointer;
+  transition: all .2s;
+  border: 2px solid transparent;
+}
+.welcome-method-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+/* ── 프리뷰 모달 ──────────────────────────────────────────── */
+.preview-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+.preview-modal-content {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  max-width: 680px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.preview-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--secondary);
+}
+.preview-modal-actions { display: flex; gap: 8px; }
+.preview-modal-body { padding: 20px; }
+
+/* ── 레포트 카드 (고정 너비, 자연 높이) ──────────────────── */
+.report-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  font-family: 'Noto Sans KR', sans-serif;
+  box-shadow: var(--shadow-md);
+  width: 520px;
+}
+
+/* 헤더 */
+.rc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 12px;
+  background: white;
+}
+.rc-header-left { display: flex; align-items: center; gap: 12px; }
+.rc-logo-img { height: 46px; width: auto; object-fit: contain; }
+.rc-logo-placeholder {
+  width: 46px;
+  height: 46px;
+  background: var(--primary);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.rc-academy-info {}
+.rc-academy-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--secondary);
+  line-height: 1.2;
+}
+.rc-academy-slogan {
+  font-size: 10px;
+  color: var(--primary);
+  font-weight: 600;
+  margin-top: 1px;
+}
+.rc-report-title {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+.rc-doc-title {
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+  letter-spacing: -0.3px;
+}
+
+/* 학생 정보 */
+.rc-student-info {
+  padding: 10px 20px;
+}
+.rc-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 8px;
+}
+.rc-info-item {}
+.rc-info-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  display: block;
+  margin-bottom: 2px;
+}
+.rc-info-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.rc-name { font-size: 15px !important; font-weight: 800 !important; }
+
+/* 섹션 */
+.rc-section {
+  padding: 10px 20px;
+  border-top: 1px solid var(--border-light);
+}
+/* 선생님 코멘트 섹션 */
+.rc-section-comment {
+  padding: 10px 20px;
+  border-top: 1px solid var(--border-light);
+}
+.rc-comment-box {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  min-height: 60px;
+}
+.rc-section-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 8px;
+}
+
+/* 점수 + 범위 */
+.rc-score-main {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+}
+.rc-score-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 90px;
+}
+.rc-score-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 4px;
+}
+.rc-score-number {
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -2px;
+}
+.rc-score-unit {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.rc-scope-box {
+  flex: 1;
+  padding: 8px 12px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.rc-scope-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 3px;
+}
+.rc-scope-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-main);
+  line-height: 1.4;
+}
+.rc-progress-row { margin-top: 5px; display: flex; align-items: flex-start; gap: 5px; }
+.rc-progress-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  padding-top: 1px;
+  flex-shrink: 0;
+}
+.rc-progress-text { font-size: 11px; color: var(--text-sub); line-height: 1.4; }
+
+/* 코멘트 */
+.rc-comment-text {
+  font-size: 12px;
+  color: var(--text-sub);
+  line-height: 1.7;
+  /* 약 400자 ≈ 8~10줄 */
+  display: -webkit-box;
+  -webkit-line-clamp: 10;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* 성적 추이 미시행 텍스트 */
+.rc-trend-no-score {
+  font-size: 9px;
+  color: var(--text-light);
+  font-weight: 400;
+}
+/* 학년 색상 닷 (표 월 옆) */
+.rc-grade-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+/* 성적 추이 헤더 (타이틀 + 범례) */
+.rc-trend-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.rc-trend-header .rc-trend-title {
+  margin-bottom: 0;
+}
+.rc-trend-legend {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.rc-trend-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-sub);
+}
+.rc-trend-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── 연간 성적 추이 (새 디자인) ──────────────────────────── */
+.rc-trend-section {
+  padding: 10px 20px;
+  border-top: 1px solid var(--border-light);
+}
+.rc-trend-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 8px;
+}
+/* 성적 추이: 테이블 + 막대그래프 병렬 */
+.rc-trend-layout {
+  display: flex;
+  gap: 14px;
+  align-items: stretch;
+}
+.rc-trend-table-wrap {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 65%;
+}
+.rc-trend-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+}
+.rc-trend-table th {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  padding: 4px 6px;
+  border-bottom: 1.5px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+.rc-trend-table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: top;
+  line-height: 1.3;
+}
+.rc-trend-td-month { font-weight: 700; color: var(--text-sub); white-space: nowrap; width: 32px; }
+.rc-trend-td-score { font-weight: 800; color: var(--text-main); width: 36px; text-align: center; white-space: nowrap; }
+.rc-trend-td-scope { font-size: 9px; color: var(--text-muted); white-space: pre-line; word-break: keep-all; }
+tr.rc-trend-current td { color: var(--primary-dark); }
+tr.rc-trend-current .rc-trend-td-score { color: var(--primary-dark); }
+
+.rc-trend-chart {
+  flex: 1;
+  min-width: 100px;
+  display: flex;
+  align-items: stretch;
+}
+.rc-bar-table {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16px, 1fr));
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+  align-items: stretch;
+}
+.rc-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+.rc-bar-score {
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--text-sub);
+  line-height: 1;
+  flex-shrink: 0;
+}
+/* 막대 영역: 남은 공간 전부 채움, 0~100점 기준 */
+.rc-bar-area {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.rc-bar-fill {
+  width: 18px;
+  border-radius: 3px 3px 0 0;
+  min-height: 2px;
+}
+.rc-bar-empty {
+  width: 18px;
+  height: 3px;
+  background: var(--border-light);
+  border-radius: 3px;
+}
+.rc-bar-label {
+  font-size: 8px;
+  color: var(--text-light);
+  white-space: nowrap;
+}
+.rc-bar-label.current {
+  color: var(--primary-dark);
+  font-weight: 800;
+}
+
+/* ── 학습 현황 (도넛 차트) ───────────────────────────────── */
+.rc-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+.rc-stat-card {
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  text-align: center;
+}
+.rc-stat-title {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--secondary);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 6px;
+}
+.rc-donut-wrap {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 6px;
+}
+.rc-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.rc-donut-pct { font-size: 12px; font-weight: 900; color: var(--text-main); line-height: 1; }
+.rc-donut-star { font-size: 12px; font-weight: 900; color: var(--text-main); line-height: 1; }
+.rc-donut-unit { font-size: 7px; font-weight: 700; }
+.rc-stat-detail { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; }
+.rc-stat-chip {
+  font-size: 9px;
+  padding: 2px 5px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+.att-present { background: #dcfce7; color: #15803d; }
+.att-late { background: #fef9c3; color: #a16207; }
+.att-absent { background: #fee2e2; color: #dc2626; }
+.rating-3 { background: #e0f7fa; color: #0e7490; }
+.rating-2 { background: #fef9c3; color: #a16207; }
+.rating-1 { background: #ffedd5; color: #c2410c; }
+.rating-0 { background: #fee2e2; color: #dc2626; }
+.rc-stat-total { width: 100%; font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+/* 푸터 */
+.rc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-top: 1px solid var(--border-light);
+}
+.rc-footer-text { font-size: 10px; color: var(--text-muted); font-weight: 600; }
+
+/* 집계 기간 표시 */
+.rc-date-range {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-left: 8px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* ── 인쇄 스타일 ─────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 8mm 10mm;
+  }
+  body { background: white !important; }
+  .app-wrapper, .app-header, .sidebar, .sidebar-config, .sidebar-students, .tabs,
+  .stats-bar, .selection-bar, .toast-container, .chip-filter-bar { display: none !important; }
+  .main-content { display: none !important; }
+  #print-container {
+    display: block !important;
+  }
+  .print-page {
+    page-break-after: always;
+    break-after: page;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    height: 100vh;
+  }
+  .print-page:last-child { page-break-after: avoid; break-after: avoid; }
+  /* 카드가 A4 전체를 채우고, 푸터는 바닥에 고정 */
+  .report-card {
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    font-size: 11pt !important;
+  }
+  /* 푸터를 바닥에 밀어내기 */
+  .rc-section-comment {
+    flex: 1 1 0 !important;
+  }
+  /* 섹션 간 여백 */
+  .rc-header { padding: 14px 20px 12px !important; }
+  .rc-student-info { padding: 12px 20px !important; }
+  .rc-section { padding: 12px 20px !important; }
+  .rc-section-comment { padding: 12px 20px !important; }
+  .rc-trend-section { padding: 12px 20px !important; }
+  .rc-footer { padding: 10px 20px !important; margin-top: auto !important; }
+  .rc-comment-box { padding: 10px 14px !important; }
+  .rc-trend-layout { min-height: 110px !important; gap: 16px !important; }
+  .rc-stats-grid { gap: 12px !important; }
+  .rc-stat-card { padding: 10px !important; }
+  /* 성적 추이: 테이블 넓히기 */
+  .rc-trend-table-wrap { max-width: 70% !important; }
+  .rc-trend-chart { min-width: 90px !important; }
+  .rc-trend-td-score { white-space: nowrap !important; }
+  .rc-trend-table td { padding: 4px 8px !important; }
+  .rc-trend-table th { padding: 4px 8px !important; font-size: 8pt !important; }
+  /* 폰트 크기 */
+  .rc-academy-name { font-size: 15pt !important; }
+  .rc-academy-slogan { font-size: 9pt !important; }
+  .rc-doc-title { font-size: 14pt !important; }
+  .rc-info-label { font-size: 8pt !important; }
+  .rc-info-value { font-size: 11pt !important; }
+  .rc-name { font-size: 13pt !important; }
+  .rc-score-number { font-size: 36pt !important; }
+  .rc-score-unit { font-size: 13pt !important; }
+  .rc-section-title { font-size: 10pt !important; margin-bottom: 8px !important; }
+  .rc-trend-title { font-size: 10pt !important; margin-bottom: 8px !important; }
+  .rc-scope-label { font-size: 8pt !important; }
+  .rc-scope-text { font-size: 10pt !important; }
+  .rc-progress-text { font-size: 9pt !important; }
+  .rc-comment-text { font-size: 10pt !important; line-height: 1.8 !important; }
+  .rc-stat-title { font-size: 9pt !important; }
+  .rc-donut-pct { font-size: 11pt !important; }
+  .rc-donut-star { font-size: 11pt !important; }
+  .rc-donut-unit { font-size: 7pt !important; }
+  .rc-stat-chip { font-size: 8pt !important; padding: 2px 5px !important; }
+  .rc-stat-total { font-size: 8pt !important; }
+  .rc-trend-table { font-size: 9pt !important; }
+  .rc-trend-td-scope { font-size: 8pt !important; }
+  .rc-trend-no-score { font-size: 8pt !important; white-space: nowrap !important; }
+  .rc-bar-fill { width: 18px !important; }
+  .rc-bar-empty { width: 18px !important; }
+  .rc-bar-label { font-size: 7pt !important; }
+  .rc-footer-text { font-size: 8pt !important; }
+  .rc-date-range { font-size: 8pt !important; }
+  .rc-score-main { gap: 16px !important; }
+  .rc-donut-wrap { width: 72px !important; height: 72px !important; }
+  .rc-donut-wrap canvas { width: 72px !important; height: 72px !important; }
+}
+
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app-wrapper">
+
+  <!-- ── 상단 헤더 ───────────────────────────── -->
+  <header class="app-header">
+    <div class="app-header-left">
+      <div class="app-logo">📊</div>
+      <div>
+        <div class="app-title" id="appTitle">매쓰그립 월말평가 레포트</div>
+        <div class="app-subtitle" id="appSubtitle">손에 잡히는 수학</div>
+      </div>
+    </div>
+    <div class="app-header-right">
+      <button class="btn btn-primary btn-sm" id="btnPrintSelected" disabled>
+        🖨️ 선택 인쇄
+      </button>
+    </div>
+  </header>
+
+  <!-- ── 메인 레이아웃 ───────────────────────── -->
+  <div class="main-layout">
+
+    <!-- ── 왼쪽: 레포트 설정 사이드바 ──────────── -->
+    <aside class="sidebar sidebar-config">
+      <div class="sidebar-section-title">레포트 설정</div>
+
+      <!-- 시트 미연결 -->
+      <div id="sheetNotConnected" class="sheet-guide-box">
+        <div class="sheet-guide-text">구글 시트 ID를 설정에서<br>먼저 입력해주세요</div>
+        <button class="btn btn-primary btn-sm" id="btnGoToSheetSettings" style="margin-top:8px;width:100%;">
+          ⚙️ 시트 설정
+        </button>
+      </div>
+
+      <!-- 시트 연동됨: 기준월 + 포함월 선택 -->
+      <div id="sheetLoadRow" style="display:none;">
+        <div class="config-group">
+          <div class="config-label">기준월</div>
+          <div class="sheet-load-row">
+            <select id="sheetMonthSelect" class="filter-select" style="flex:1;">
+              <option value="">월 선택...</option>
+            </select>
+            <button class="btn btn-primary btn-sm" id="btnLoadFromSheet" style="white-space:nowrap;padding:6px 10px;">
+              🔄 불러오기
+            </button>
+          </div>
+        </div>
+
+        <!-- 포함된 월 (로드 후 표시) -->
+        <div id="loadedMonthsPanel" style="display:none;">
+          <div class="config-label">포함된 월 (추이용)</div>
+          <div id="loadedMonthChips" class="loaded-month-chips"></div>
+        </div>
+      </div>
+
+      <!-- 로딩 상태 -->
+      <div id="sheetLoadingBox" style="display:none;" class="sheet-loading-box">
+        <div class="loading-spinner"></div>
+        <span id="sheetLoadingMsg">불러오는 중...</span>
+      </div>
+
+      <!-- 하단 버튼 -->
+      <div style="margin-top:auto;padding:10px 12px;border-top:1px solid var(--border-light);">
+        <div id="sheetStatusBadge" style="display:none;margin-bottom:6px;" class="badge badge-green" title="연동된 시트 ID">
+          <span id="connectedSheetIdLabel">–</span>
+        </div>
+        <button class="btn btn-ghost btn-xs" id="btnChangeSheet" style="width:100%;display:none;">시트 설정 변경</button>
+        <button class="btn btn-ghost btn-xs" id="btnSettings" style="width:100%;margin-top:4px;">⚙️ 설정</button>
+      </div>
+    </aside>
+
+    <!-- ── 가운데: 학생 목록 사이드바 ─────────── -->
+    <aside class="sidebar sidebar-students" id="studentSidebar" style="display:none;">
+      <!-- 시행월 선택 -->
+      <div class="month-selector">
+        <select id="monthSelect" disabled>
+          <option value="">📅 시행월 선택...</option>
+        </select>
+      </div>
+
+      <!-- 검색 -->
+      <div class="filter-panel">
+        <input type="text" class="search-input" id="searchInput" placeholder="🔍 이름, 학교 검색..." disabled>
+      </div>
+
+      <!-- 정렬 + 목록 헤더 -->
+      <div class="student-list-header">
+        <span class="student-count" id="studentCount">학생 0명</span>
+        <div class="list-actions">
+          <select class="sort-select" id="sortSelect">
+            <option value="name">이름순</option>
+            <option value="score-desc">점수↑</option>
+            <option value="score-asc">점수↓</option>
+          </select>
+          <button class="btn btn-ghost btn-xs" id="btnSelectAll" disabled>전체</button>
+          <button class="btn btn-ghost btn-xs" id="btnClearSelection" disabled>해제</button>
+        </div>
+      </div>
+
+      <!-- 학생 목록 -->
+      <div class="student-list" id="studentList">
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <div class="empty-title">데이터 없음</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── 메인 콘텐츠 ────────────────────────── -->
+    <main class="main-content">
+
+      <!-- 탭 -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="reports">📋 레포트 카드</button>
+        <button class="tab-btn" data-tab="settings">⚙️ 설정</button>
+      </div>
+
+      <!-- ── 레포트 탭 ──────────────────────── -->
+      <div id="tab-reports">
+
+        <!-- 필터 칩 바 -->
+        <div class="chip-filter-bar" id="chipFilterBar" style="display:none;">
+          <div class="chip-filter-row">
+            <span class="chip-filter-label">선생님</span>
+            <div class="chip-filter-chips" id="teacherChips"></div>
+          </div>
+          <div class="chip-filter-row">
+            <span class="chip-filter-label">학년</span>
+            <div class="chip-filter-chips" id="gradeChips"></div>
+          </div>
+        </div>
+
+        <!-- 통계 바 -->
+        <div class="stats-bar" id="statsBar" style="display:none;">
+          <div class="stat-card stat-card-wide">
+            <div class="stat-card-label" id="statGroupLabel">이번 달 전체</div>
+            <div class="stat-card-value" id="statTotal">0</div>
+            <div class="stat-card-sub">명</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">평균 점수</div>
+            <div class="stat-card-value" id="statAvgScore">–</div>
+            <div class="stat-card-sub">점</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">최고 / 최저</div>
+            <div class="stat-card-value" id="statMaxScore">–</div>
+            <div class="stat-card-sub" id="statMinScore"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">선택됨</div>
+            <div class="stat-card-value" id="statSelected">0</div>
+            <div class="stat-card-sub">명</div>
+          </div>
+        </div>
+
+        <!-- 선택 바 -->
+        <div class="selection-bar" id="selectionBar">
+          <span class="selection-info" id="selectionInfo">0명 선택됨</span>
+          <div class="selection-actions">
+            <button class="btn btn-ghost btn-sm" id="btnPreviewFirst" style="color:white;border-color:rgba(255,255,255,0.3);">👁️ 미리보기</button>
+            <button class="btn btn-success btn-sm" id="btnPrintAll">🖨️ 전체 인쇄</button>
+          </div>
+        </div>
+
+        <!-- 환영 / 로딩 화면 -->
+        <div id="welcomeScreen" style="text-align:center;padding:60px 20px;">
+          <!-- 시트 미연결 -->
+          <div id="welcomeNoSheet">
+            <div style="font-size:48px;margin-bottom:16px;">📊</div>
+            <h2 style="font-size:20px;font-weight:800;margin-bottom:8px;color:#1E293B;">월말평가 레포트 생성기</h2>
+            <p style="color:#64748B;margin-bottom:20px;font-size:14px;">먼저 구글 시트를 연동해주세요.</p>
+            <button class="btn btn-primary" id="welcomeSheetBtn" style="padding:10px 24px;font-size:14px;">⚙️ 시트 설정하기</button>
+          </div>
+          <!-- 시트 연결됨: 자동 로드 -->
+          <div id="welcomeAutoLoad" style="display:none;">
+            <div style="font-size:48px;margin-bottom:16px;">📊</div>
+            <h2 style="font-size:20px;font-weight:800;margin-bottom:8px;color:#1E293B;">월말평가 레포트 생성기</h2>
+            <p style="color:#64748B;margin-bottom:20px;font-size:14px;line-height:1.7;" id="autoLoadLabel">최신 데이터를 불러옵니다</p>
+            <button class="btn btn-primary" id="btnAutoLoad" style="padding:12px 32px;font-size:15px;font-weight:800;">
+              🔄 최신 월 불러오기
+            </button>
+          </div>
+          <!-- 로딩 중 -->
+          <div id="welcomeLoading" style="display:none;">
+            <div class="loading-spinner" style="width:32px;height:32px;margin:0 auto 16px;border-width:3px;"></div>
+            <div style="font-size:14px;color:#64748B;" id="centerLoadingMsg">구글 시트에서 불러오는 중...</div>
+          </div>
+        </div>
+
+        <!-- 레포트 그리드 -->
+        <div class="report-grid" id="reportGrid" style="display:none;"></div>
+
+      </div>
+
+      <!-- ── 설정 탭 ────────────────────────── -->
+      <div id="tab-settings" style="display:none;">
+        <div class="settings-panel">
+
+          <!-- 🔗 구글 시트 연동 (최상단, 가장 중요) -->
+          <div class="settings-card" style="border:2px solid #19b1c6;background:#e0f7fa;">
+            <div class="settings-card-title" style="color:#1e2a6d;">
+              📊 구글 시트 연동
+              <span style="font-size:11px;font-weight:400;color:#1298ab;margin-left:8px;">한 번만 설정하면 매달 클릭 한 번!</span>
+            </div>
+
+            <!-- Step 1 -->
+            <div class="gs-step">
+              <div class="gs-step-num">1</div>
+              <div class="gs-step-content">
+                <div class="gs-step-title">구글 시트 "웹에 게시" 설정</div>
+                <div class="gs-step-desc">구글 시트 열기 → <b>파일</b> → <b>공유</b> → <b>웹에 게시</b> → <b>게시</b> 클릭</div>
+                <div class="gs-step-img">
+                  <div style="background:#eef0f8;border-radius:8px;padding:10px 14px;font-size:12px;color:#1e2a6d;margin-top:6px;">
+                    ⚠️ 이 설정을 해야 앱에서 시트 데이터를 읽을 수 있어요. 시트 내용은 링크를 아는 사람만 볼 수 있습니다.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="gs-step">
+              <div class="gs-step-num">2</div>
+              <div class="gs-step-content">
+                <div class="gs-step-title">Apps Script URL 입력</div>
+                <div class="gs-step-desc">배포 완료 후 받은 <b>웹 앱 URL</b>을 붙여넣기</div>
+                <div class="form-group" style="margin:8px 0 8px;">
+                  <input type="text" class="form-input" id="inputScriptUrl"
+                    placeholder="https://script.google.com/macros/s/.../exec"
+                    style="font-size:12px;font-family:monospace;">
+                </div>
+                <div class="gs-step-title" style="margin-top:12px;">구글 시트 ID 입력</div>
+                <div class="gs-step-desc">시트 주소에서 ID를 복사해서 붙여넣기</div>
+                <div style="background:#F1F5F9;border-radius:8px;padding:8px 12px;margin:6px 0;font-size:11px;font-family:monospace;color:#475569;word-break:break-all;">
+                  .../spreadsheets/d/<span style="background:#FEF3C7;color:#92400E;padding:1px 4px;border-radius:3px;font-weight:700;">여기가_시트_ID</span>/edit
+                </div>
+                <div class="form-group" style="margin-bottom:8px;">
+                  <input type="text" class="form-input" id="inputSheetId"
+                    placeholder="예: 1Nc-oLHAy-nq8tuOfpJCV74ydY1a9K4hk65SFW4xayz4"
+                    style="font-family:monospace;font-size:12px;">
+                </div>
+                <button class="btn btn-ghost btn-sm" id="btnTestSheet" style="width:100%;">
+                  🔍 연결 테스트
+                </button>
+                <div id="sheetTestResult" style="display:none;margin-top:8px;padding:10px;border-radius:8px;font-size:13px;"></div>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="gs-step">
+              <div class="gs-step-num">3</div>
+              <div class="gs-step-content">
+                <div class="gs-step-title">시트 탭 이름 규칙</div>
+                <div class="gs-step-desc">탭 이름을 <b>YYYY-MM</b> 형식으로 만들어야 자동으로 인식돼요</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
+                  <span class="badge badge-green">2026-03 ✅</span>
+                  <span class="badge badge-green">2026-04 ✅</span>
+                  <span class="badge badge-blue">2026년3월 ❌</span>
+                  <span class="badge badge-blue">3월 ❌</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="gs-step" style="border-bottom:none;">
+              <div class="gs-step-num">4</div>
+              <div class="gs-step-content">
+                <div class="gs-step-title">매달 선생님이 할 일</div>
+                <div class="gs-step-desc">새 탭 추가 → 탭 이름을 <b>2026-04</b>로 변경 → Notion MASTER 컬럼 복사해서 <b>A1</b>에 붙여넣기</div>
+                <div style="background:#eef0f8;border-radius:8px;padding:10px 14px;font-size:12px;color:#1e2a6d;margin-top:6px;line-height:1.7;">
+                  ✅ 이후엔 앱에서 <b>기준월 선택 → 🔄 클릭</b>하면 자동으로 직전 6개월 데이터도 함께 로드돼요!
+                </div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" id="btnSaveSheetId" style="width:100%;margin-top:4px;">
+              💾 시트 ID 저장
+            </button>
+          </div>
+
+          <!-- 학원 정보 -->
+          <div class="settings-card">
+            <div class="settings-card-title">🏫 학원 정보</div>
+
+            <div class="form-group">
+              <label class="form-label">학원 이름</label>
+              <input type="text" class="form-input" id="inputAcademy" placeholder="매쓰그립수학학원" value="">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">학원 로고</label>
+              <div class="logo-upload-area" id="logoUploadArea">
+                <div id="logoPlaceholder">
+                  <div style="font-size:24px;margin-bottom:6px;">🖼️</div>
+                  <div style="font-size:13px;color:#64748B;">클릭해서 로고 이미지 업로드</div>
+                  <div style="font-size:11px;color:#94A3B8;margin-top:4px;">PNG, JPG 권장 (최대 500KB)</div>
+                </div>
+                <img id="logoPreview" class="logo-preview" style="display:none;" alt="로고 미리보기">
+                <input type="file" id="logoInput" accept="image/*" style="display:none;">
+              </div>
+              <button class="btn btn-ghost btn-xs" id="btnRemoveLogo" style="margin-top:6px;display:none;">✕ 로고 삭제</button>
+            </div>
+
+            <button class="btn btn-primary" id="btnSaveSettings">💾 설정 저장</button>
+          </div>
+
+          <!-- 선생님별 색상 -->
+          <div class="settings-card">
+            <div class="settings-card-title">🎨 선생님별 색상</div>
+            <div class="teacher-color-list" id="teacherColorList">
+              <div style="color:#94A3B8;font-size:13px;padding:12px 0;text-align:center;">데이터를 먼저 불러와주세요</div>
+            </div>
+          </div>
+
+          <!-- Notion → 구글 시트 방법 안내 -->
+          <div class="settings-card">
+            <div class="settings-card-title">📋 Notion → 구글 시트 방법</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div class="howto-step">
+                <div class="howto-num">①</div>
+                <div>
+                  <b>Notion 월말평가 DB 열기</b><br>
+                  <span style="color:#64748B;font-size:12px;">MASTER 속성이 있는 DB</span>
+                </div>
+              </div>
+              <div class="howto-step">
+                <div class="howto-num">②</div>
+                <div>
+                  <b>MASTER 열 전체 복사</b><br>
+                  <span style="color:#64748B;font-size:12px;">열 헤더 클릭 → Ctrl+A → Ctrl+C</span>
+                </div>
+              </div>
+              <div class="howto-step">
+                <div class="howto-num">③</div>
+                <div>
+                  <b>구글 시트 새 탭에 붙여넣기</b><br>
+                  <span style="color:#64748B;font-size:12px;">탭명: 2026-03 / A1 셀에 붙여넣기 (Ctrl+V)</span>
+                </div>
+              </div>
+              <div class="howto-step" style="border-bottom:none;">
+                <div class="howto-num">④</div>
+                <div>
+                  <b>앱에서 불러오기</b><br>
+                  <span style="color:#64748B;font-size:12px;">월 선택 → 🔄 불러오기 클릭</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- 토스트 컨테이너 -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+
+// =======================================================
+//  매쓰그립 월말평가 레포트 - Bundled JS (v4)
+// =======================================================
+
+// -- parser.js --
+// ============================================================
+//  parser.js — CSV / MASTER 파싱 함수
+// ============================================================
+//  MASTER 필드 순서:
+//  0:id | 1:month | 2:name | 3:teacher | 4:school | 5:grade |
+//  6:score | 7:scope | 8:att | 9:att2 | 10:hw | 11:progress | 12:comment
+// ============================================================
+
+/**
+ * MASTER 문자열 하나를 파싱해서 객체로 반환
+ * @param {string} raw - pipe(|) 구분 MASTER 문자열
+ * @returns {Object|null}
+ */
+function parseMaster(raw) {
+  if (!raw || typeof raw !== 'string') return null;
+  const parts = raw.split('|');
+  if (parts.length < 10) return null; // 최소 필드 수 체크 (v4: 15필드)
+
+  const [
+    id, month, name, teacher, school, grade,
+    scoreRaw, scope, dateStartRaw, dateEndRaw,
+    attRaw, att2Raw, hwRaw, progress, ...commentParts
+  ] = parts;
+
+  // 코멘트는 나머지 파트를 합침 (파이프가 포함될 수 있으므로)
+  const comment = commentParts.join('|').trim();
+
+  // 점수 파싱
+  const score = scoreRaw && scoreRaw.trim() !== '' ? Number(scoreRaw.trim()) : null;
+
+  // 집계 기간 파싱 (YYMMDD → "YY.MM.DD")
+  const dateStart = parseDateField(dateStartRaw);
+  const dateEnd   = parseDateField(dateEndRaw);
+
+  // 출결 파싱: "present,late,absent,total"
+  const att = parseSubField(attRaw, 4);
+
+  // 태도 파싱: "3star,2star,1star,avgPct"
+  const att2 = parseSubField(att2Raw, 4);
+
+  // 숙제 파싱: "3star,2star,1star,zero,avgPct"
+  const hw = parseSubField(hwRaw, 5);
+
+  // 출결 지표 계산
+  const attStats = calcAttStats(att);
+  // 태도 지표 계산
+  const att2Stats = calcRatingStats(att2, 3);
+  // 숙제 지표 계산
+  const hwStats = calcRatingStats(hw, 4);
+
+  return {
+    id: (id || '').trim(),
+    month: (month || '').trim(),
+    name: (name || '').trim(),
+    teacher: (teacher || '').trim(),
+    school: (school || '').trim(),
+    grade: (grade || '').trim(),
+    score,
+    scope: (scope || '').trim(),
+    dateStart,
+    dateEnd,
+    att,
+    att2,
+    hw,
+    progress: (progress || '').trim(),
+    comment,
+    attStats,
+    att2Stats,
+    hwStats,
+  };
+}
+
+/**
+ * YYMMDD 형식 날짜 문자열을 "MM.DD" 표시용 문자열로 변환
+ * @param {string} raw - "260301" 등
+ * @returns {string} "3.1" 또는 빈 문자열
+ */
+function parseDateField(raw) {
+  if (!raw || typeof raw !== 'string') return '';
+  const s = raw.trim();
+  if (s.length !== 6) return s; // 형식이 다르면 그대로 반환
+  const yy = s.slice(0, 2);
+  const mm = String(Number(s.slice(2, 4)));
+  const dd = String(Number(s.slice(4, 6)));
+  return `${mm}.${dd}`;
+}
+
+/**
+ * 하위 필드 문자열을 숫자 배열로 파싱
+ * @param {string} raw - 콤마 구분 문자열
+ * @param {number} expectedLen - 기대 길이
+ * @returns {number[]}
+ */
+function parseSubField(raw, expectedLen) {
+  if (!raw || typeof raw !== 'string') return new Array(expectedLen).fill(0);
+  const arr = raw.trim().split(',').map(v => {
+    const n = Number(v.trim());
+    return isNaN(n) ? 0 : n;
+  });
+  // 부족하면 0으로 채움
+  while (arr.length < expectedLen) arr.push(0);
+  return arr;
+}
+
+/**
+ * 출결 통계 계산
+ * att = [present, late, absent, total]
+ * 출석률 = (present + late*0.5) / total * 100
+ */
+function calcAttStats(att) {
+  const [present, late, absent, total] = att;
+  if (!total || total === 0) return { rate: 0, present, late, absent, total };
+  const rate = Math.round((present + late * 0.5) / total * 100 * 10) / 10;
+  return { rate, present, late, absent, total };
+}
+
+/**
+ * 태도/숙제 통계 계산 (별점 기반)
+ * att2: [3star, 2star, 1star, avgPct] (valueCnt=3)
+ * hw:   [3star, 2star, 1star, zero, avgPct] (valueCnt=4)
+ * 별점 평균 = avgPct / 100 * 3
+ */
+function calcRatingStats(arr, valueCnt) {
+  const counts = arr.slice(0, valueCnt);
+  const avgPct = arr[valueCnt] || 0;
+  const total = counts.reduce((s, v) => s + v, 0);
+  const starAvg = Math.round(avgPct / 100 * 3 * 10) / 10;
+  return { counts, avgPct, total, starAvg };
+}
+
+/**
+ * CSV 문자열 전체를 파싱해서 학생 배열로 반환
+ * - 한 줄 = 레코드 하나 (MASTER 형식)
+ * - 빈 줄, 헤더(#으로 시작), ID가 없는 줄은 건너뜀
+ * @param {string} csvText - CSV 파일 내용
+ * @returns {Object[]} students 배열
+ */
+function parseCSV(csvText) {
+  if (!csvText) return [];
+  const lines = csvText.split(/\r?\n/);
+  const students = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;               // 빈 줄
+    if (trimmed.startsWith('#')) continue; // 주석 줄
+    if (trimmed.startsWith('id|') || trimmed.startsWith('ID|')) continue; // 헤더 줄
+
+    const parsed = parseMaster(trimmed);
+    if (parsed && parsed.id && parsed.name) {
+      students.push(parsed);
+    }
+  }
+
+  return students;
+}
+
+/**
+ * 학생 배열에서 연간 성적 추이를 추출
+ * 같은 studentId의 모든 월 성적을 모아 반환
+ * @param {Object[]} allStudents - 전체 학생 데이터
+ * @param {string} studentId - 학생 ID
+ * @returns {Array<{month, score}>} 월별 성적 배열 (시간순)
+ */
+function getAnnualScores(allStudents, studentId) {
+  const records = allStudents
+    .filter(s => s.id === studentId && s.score !== null)
+    .map(s => ({ month: s.month, score: s.score }));
+
+  // 월 정렬: "2025년 3월" → 년*100+월로 정렬
+  records.sort((a, b) => parseMonthLabel(a.month) - parseMonthLabel(b.month));
+  return records;
+}
+
+/**
+ * "2025년 3월" → 202503 (정렬용 숫자)
+ */
+function parseMonthLabel(label) {
+  if (!label) return 0;
+  const m = label.match(/(\d{4})년\s*(\d{1,2})월/);
+  if (!m) return 0;
+  return Number(m[1]) * 100 + Number(m[2]);
+}
+
+/**
+ * 전체 데이터에서 유니크한 선생님 목록 추출
+ */
+function getTeachers(students) {
+  return [...new Set(students.map(s => s.teacher).filter(Boolean))].sort();
+}
+
+/**
+ * 전체 데이터에서 유니크한 학교 목록 추출
+ */
+function getSchools(students) {
+  return [...new Set(students.map(s => s.school).filter(Boolean))].sort();
+}
+
+/**
+ * 전체 데이터에서 유니크한 학년 목록 추출
+ */
+function getGrades(students) {
+  return [...new Set(students.map(s => s.grade).filter(Boolean))].sort((a, b) => gradeOrder(a) - gradeOrder(b));
+}
+
+/**
+ * 전체 데이터에서 유니크한 시행월 목록 추출
+ */
+function getMonths(students) {
+  const months = [...new Set(students.map(s => s.month).filter(Boolean))];
+  months.sort((a, b) => parseMonthLabel(b) - parseMonthLabel(a)); // 최신순
+  return months;
+}
+
+function gradeOrder(grade) {
+  const map = { '초1':1,'초2':2,'초3':3,'초4':4,'초5':5,'초6':6,'중1':7,'중2':8,'중3':9,'고1':10,'고2':11,'고3':12 };
+  return map[grade] || 99;
+}
+
+
+// -- store.js --
+// ============================================================
+//  store.js — 앱 상태 관리
+// ============================================================
+
+const STORAGE_KEY = 'mg_report_settings';
+
+// 기본 학년별 색상
+const DEFAULT_TEACHER_COLORS = [
+  { name: '블루', value: '#3B82F6' },
+  { name: '그린', value: '#10B981' },
+  { name: '퍼플', value: '#8B5CF6' },
+  { name: '오렌지', value: '#F59E0B' },
+  { name: '로즈', value: '#EC4899' },
+  { name: '틸', value: '#14B8A6' },
+];
+
+const AppStore = (() => {
+  let state = {
+    // 데이터
+    allStudents: [],
+    currentMonthStudents: [],
+    filteredStudents: [],
+    selectedStudentIds: new Set(),
+
+    // 필터
+    selectedMonth: '',
+    filterTeachers: new Set(),   // 다중 선택
+    filterGrades: new Set(),     // 다중 선택
+    filterSearch: '',
+
+    // 설정
+    academyName: '매쓰그립수학학원',
+    logoBase64: '',
+    teacherColors: {},
+
+    // UI 상태
+    isLoaded: false,
+    fileName: '',
+  };
+
+  const listeners = [];
+
+  function notify() {
+    listeners.forEach(fn => fn({ ...state }));
+  }
+
+  return {
+    getState() {
+      return { ...state };
+    },
+
+    subscribe(fn) {
+      listeners.push(fn);
+      return () => {
+        const idx = listeners.indexOf(fn);
+        if (idx > -1) listeners.splice(idx, 1);
+      };
+    },
+
+    // ── 데이터 설정 ──────────────────────────────────────────
+    setAllStudents(students, fileName = '') {
+      state.allStudents = students;
+      state.fileName = fileName;
+      state.isLoaded = students.length > 0;
+
+      const months = getUniqueMonths(students);
+      if (months.length > 0 && !state.selectedMonth) {
+        state.selectedMonth = months[0];
+      } else if (!months.includes(state.selectedMonth) && months.length > 0) {
+        state.selectedMonth = months[0];
+      }
+
+      // 필터 초기화
+      state.filterTeachers = new Set();
+      state.filterGrades = new Set();
+
+      this.applyFilters();
+      notify();
+    },
+
+    setSelectedMonth(month) {
+      state.selectedMonth = month;
+      state.selectedStudentIds = new Set();
+      this.applyFilters();
+      notify();
+    },
+
+    setFilter(key, value) {
+      state[key] = value;
+      this.applyFilters();
+      notify();
+    },
+
+    toggleFilterTeacher(teacher) {
+      if (state.filterTeachers.has(teacher)) {
+        state.filterTeachers.delete(teacher);
+      } else {
+        state.filterTeachers.add(teacher);
+      }
+      this.applyFilters();
+      notify();
+    },
+
+    toggleFilterGrade(grade) {
+      if (state.filterGrades.has(grade)) {
+        state.filterGrades.delete(grade);
+      } else {
+        state.filterGrades.add(grade);
+      }
+      this.applyFilters();
+      notify();
+    },
+
+    clearFilterTeachers() {
+      state.filterTeachers = new Set();
+      this.applyFilters();
+      notify();
+    },
+
+    clearFilterGrades() {
+      state.filterGrades = new Set();
+      this.applyFilters();
+      notify();
+    },
+
+    applyFilters() {
+      const monthStudents = state.selectedMonth
+        ? state.allStudents.filter(s => s.month === state.selectedMonth)
+        : state.allStudents;
+
+      state.currentMonthStudents = monthStudents;
+
+      let result = [...monthStudents];
+
+      if (state.filterTeachers.size > 0) {
+        result = result.filter(s => state.filterTeachers.has(s.teacher));
+      }
+      if (state.filterGrades.size > 0) {
+        result = result.filter(s => state.filterGrades.has(s.grade));
+      }
+      if (state.filterSearch) {
+        const q = state.filterSearch.toLowerCase();
+        result = result.filter(s =>
+          s.name.toLowerCase().includes(q) ||
+          s.school.toLowerCase().includes(q) ||
+          s.id.toLowerCase().includes(q)
+        );
+      }
+
+      state.filteredStudents = result;
+    },
+
+    // ── 선택 관리 ──────────────────────────────────────────
+    toggleSelect(studentKey) {
+      if (state.selectedStudentIds.has(studentKey)) {
+        state.selectedStudentIds.delete(studentKey);
+      } else {
+        state.selectedStudentIds.add(studentKey);
+      }
+      notify();
+    },
+
+    selectAll() {
+      state.selectedStudentIds = new Set(
+        state.filteredStudents.map(s => makeKey(s))
+      );
+      notify();
+    },
+
+    clearSelection() {
+      state.selectedStudentIds = new Set();
+      notify();
+    },
+
+    getSelectedStudents() {
+      return state.filteredStudents.filter(s =>
+        state.selectedStudentIds.has(makeKey(s))
+      );
+    },
+
+    // ── 설정 저장/로드 ──────────────────────────────────────
+    loadSettings() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          state.academyName = parsed.academyName || '매쓰그립수학학원';
+          state.logoBase64 = parsed.logoBase64 || '';
+          state.teacherColors = parsed.teacherColors || {};
+        }
+      } catch (e) {
+        console.warn('[Store] 설정 로드 실패:', e);
+      }
+    },
+
+    saveSettings(settings) {
+      if (settings.academyName !== undefined) state.academyName = settings.academyName;
+      if (settings.logoBase64 !== undefined) state.logoBase64 = settings.logoBase64;
+      if (settings.teacherColors !== undefined) state.teacherColors = settings.teacherColors;
+
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          academyName: state.academyName,
+          logoBase64: state.logoBase64,
+          teacherColors: state.teacherColors,
+        }));
+      } catch (e) {
+        console.warn('[Store] 설정 저장 실패:', e);
+      }
+      notify();
+    },
+
+    setTeacherColor(teacher, color) {
+      state.teacherColors = { ...state.teacherColors, [teacher]: color };
+      this.saveSettings({});
+      notify();
+    },
+
+    getTeacherColor(teacher) {
+      return state.teacherColors[teacher] || null;
+    },
+  };
+})();
+
+// 복합 키 생성 (id + month)
+function makeKey(student) {
+  return `${student.id}::${student.month}`;
+}
+
+// 유니크 월 목록 (최신순)
+function getUniqueMonths(students) {
+  const months = [...new Set(students.map(s => s.month).filter(Boolean))];
+  months.sort((a, b) => parseMonthLabel(b) - parseMonthLabel(a));
+  return months;
+}
+
+
+
+// default export: AppStore;
+
+
+// -- googleSheets.js --
+// ============================================================
+//  googleSheets.js — 구글 앱스 스크립트 연동
+// ============================================================
+//
+//  Apps Script 웹 앱 URL을 통해 CORS 없이 시트 데이터를 읽어옴
+//
+//  Apps Script 코드 (구글 시트 → 확장 프로그램 → Apps Script):
+//
+//  function doGet(e) {
+//    const sheetId = e.parameter.sheet;
+//    const tabName = e.parameter.tab;
+//    const ss = SpreadsheetApp.openById(sheetId);
+//    if (!tabName || tabName === '__list__') {
+//      const names = ss.getSheets().map(s => s.getName());
+//      return ContentService
+//        .createTextOutput(JSON.stringify({ tabs: names }))
+//        .setMimeType(ContentService.MimeType.JSON);
+//    }
+//    const sheet = ss.getSheetByName(tabName);
+//    if (!sheet) {
+//      return ContentService
+//        .createTextOutput(JSON.stringify({ error: '탭을 찾을 수 없습니다: ' + tabName }))
+//        .setMimeType(ContentService.MimeType.JSON);
+//    }
+//    const data = sheet.getDataRange().getValues();
+//    const rows = data.map(row => row[0]).filter(v => v && String(v).trim());
+//    return ContentService
+//      .createTextOutput(rows.join('\n'))
+//      .setMimeType(ContentService.MimeType.TEXT);
+//  }
+//
+// ============================================================
+
+/**
+ * Apps Script URL 유효성 검사
+ */
+function isValidScriptUrl(url) {
+  return typeof url === 'string' &&
+    url.trim().startsWith('https://script.google.com/macros/s/');
+}
+
+/**
+ * 구글 시트의 탭 목록을 가져오기
+ * @returns {Promise<string[]>} 탭 이름 배열
+ */
+async function fetchTabList(scriptUrl, sheetId) {
+  const url = `${scriptUrl.trim()}?sheet=${encodeURIComponent(sheetId)}&tab=__list__`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`탭 목록 조회 실패 (HTTP ${res.status})`);
+  const text = await res.text();
+  try {
+    const json = JSON.parse(text);
+    if (json.tabs) return json.tabs;
+    if (json.error) throw new Error(json.error);
+  } catch (e) {
+    if (e.message.includes('JSON')) {
+      // 구버전 Apps Script — 탭 목록 미지원, 빈 배열 반환
+      return [];
+    }
+    throw e;
+  }
+  return [];
+}
+
+/**
+ * Apps Script를 통해 특정 탭 데이터 가져오기
+ * @param {string} scriptUrl - Apps Script 웹 앱 URL
+ * @param {string} sheetId   - 구글 시트 ID
+ * @param {string} tabName   - 탭 이름 (예: "2026-03")
+ * @returns {Promise<string>} CSV 텍스트 (한 줄 = MASTER 레코드)
+ */
+async function fetchSheetTab(scriptUrl, sheetId, tabName) {
+  const url = `${scriptUrl.trim()}?sheet=${encodeURIComponent(sheetId)}&tab=${encodeURIComponent(tabName)}`;
+
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    throw new Error(`데이터를 불러오지 못했습니다 (HTTP ${res.status})`);
+  }
+
+  const text = await res.text();
+
+  // Apps Script가 JSON 에러를 반환하는 경우
+  if (text.trim().startsWith('{')) {
+    try {
+      const json = JSON.parse(text);
+      if (json.error) throw new Error(json.error);
+    } catch (e) {
+      if (e.message !== 'Unexpected token') throw e;
+    }
+  }
+
+  return text;
+}
+
+/**
+ * Apps Script 연결 테스트
+ * - tab 파라미터 없이 요청해서 오류 여부만 확인
+ * @param {string} scriptUrl
+ * @param {string} sheetId
+ * @returns {Promise<{ok: boolean, message: string}>}
+ */
+async function validateConnection(scriptUrl, sheetId) {
+  if (!scriptUrl) return { ok: false, message: 'Apps Script URL을 입력해주세요.' };
+  if (!isValidScriptUrl(scriptUrl)) {
+    return { ok: false, message: 'URL 형식이 올바르지 않습니다.\nhttps://script.google.com/macros/s/... 형식이어야 해요.' };
+  }
+  if (!sheetId) return { ok: false, message: '구글 시트 ID를 입력해주세요.' };
+
+  try {
+    // 존재하지 않는 탭으로 요청 → 에러 JSON이 오면 연결은 성공
+    const url = `${scriptUrl.trim()}?sheet=${encodeURIComponent(sheetId)}&tab=__test__`;
+    const res = await fetch(url);
+
+    if (!res.ok) {
+      if (res.status === 403) return { ok: false, message: '접근 거부 (403). Apps Script 배포 시 액세스를 "모든 사용자"로 설정했는지 확인해주세요.' };
+      return { ok: false, message: `연결 실패 (HTTP ${res.status})` };
+    }
+
+    const text = await res.text();
+
+    // 에러 JSON이 오면 → 연결은 성공, 탭만 없는 것
+    if (text.includes('탭을 찾을 수 없습니다') || text.includes('error')) {
+      return { ok: true, message: '연결 성공! ✅ Apps Script가 정상 작동하고 있어요.' };
+    }
+
+    return { ok: true, message: '연결 성공! ✅' };
+
+  } catch (e) {
+    return { ok: false, message: `연결 실패: ${e.message}\n\n브라우저가 요청을 차단했을 수 있어요. Apps Script 배포 설정을 확인해주세요.` };
+  }
+}
+
+/**
+ * 구글 시트 URL 또는 ID에서 순수 ID만 추출
+ */
+function extractSheetId(input) {
+  if (!input) return '';
+  const trimmed = input.trim();
+  const match = trimmed.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  if (match) return match[1];
+  if (/^[a-zA-Z0-9_-]+$/.test(trimmed)) return trimmed;
+  return trimmed;
+}
+
+/**
+ * "YYYY-MM" 형식의 탭 이름 생성
+ */
+function makeTabName(year, month) {
+  return `${year}-${String(month).padStart(2, '0')}`;
+}
+
+/**
+ * "YYYY-MM" → "2026년 3월" (Notion month 필드와 매칭)
+ */
+function tabNameToNotionMonth(tabName) {
+  const m = tabName.match(/^(\d{4})-(\d{2})$/);
+  if (!m) return tabName;
+  return `${m[1]}년 ${Number(m[2])}월`;
+}
+
+
+// -- renderer.js --
+// ============================================================
+//  renderer.js — 레포트 카드 렌더링 v3
+//  - 매쓰그립 테마 (#19b1c6 / #1e2a6d)
+//  - 막대그래프: 순수 CSS 기반 고정 7칸 (기준월 포함 직전 6개월)
+//  - 알파벳 성적 제거
+//  - 카드 고정 크기 (A4 비율)
+// ============================================================
+
+
+// Chart 인스턴스 추적 (canvas ID → 인스턴스)
+const chartInstances = new Map();
+
+// ── 브랜드 색상 ──────────────────────────────────────────────
+const BRAND_PRIMARY   = '#19b1c6';
+const BRAND_SECONDARY = '#1e2a6d';
+
+// ── 색상 헬퍼 ─────────────────────────────────────────────
+function hexToRgba(hex, alpha = 1) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// ── canvas ID 생성 ────────────────────────────────────────
+function makeCanvasId(type, studentId, uid) {
+  return `c-${type}-${studentId}-${uid}`.replace(/[^a-zA-Z0-9\-]/g, '_');
+}
+
+// ── "2026년 3월" → 202603 변환 (정렬 용도) ────────────────
+
+
+// ── "2026년 3월" → "3월" (짧은 라벨) ─────────────────────
+function shortMonth(label) {
+  if (!label) return '';
+  const m = label.match(/\d{1,2}월/);
+  return m ? m[0] : label;
+}
+
+/**
+ * allStudents에 실제 존재하는 월 중에서
+ * 기준월(currentMonth) 이하인 것만 추출하여 슬롯 생성 (최대 7개)
+ * → 탭이 없는 달은 아예 표시하지 않음
+ */
+function buildDataSlots(currentMonth, annualScores, allStudents, studentId) {
+  const cur = parseMonthLabel(currentMonth);
+  if (!cur) return [];
+
+  const existingMonths = [...new Set(allStudents.map(s => s.month).filter(Boolean))]
+    .filter(m => parseMonthLabel(m) <= cur)
+    .sort((a, b) => parseMonthLabel(a) - parseMonthLabel(b));
+
+  const recentMonths = existingMonths.slice(-7);
+
+  return recentMonths.map(label => {
+    const isCurrent = (label === currentMonth);
+    const found = annualScores.find(s => s.month === label);
+    const rec = allStudents.find(s => s.id === studentId && s.month === label);
+    const grade = rec ? rec.grade : null;
+    return {
+      label,
+      score: found ? found.score : null,
+      scope: found ? (found.scope || null) : null,
+      grade,
+      isCurrent,
+    };
+  });
+}
+
+// ── 레포트 카드 HTML 생성 ──────────────────────────────────
+function buildReportCard(student, allStudents, accentColor, settings, uid) {
+  // 선생님별 색상은 카드 헤더/포인트에만 제한적으로 사용
+  // 전체 UI는 브랜드 컬러 기반
+  const color      = accentColor || BRAND_PRIMARY;
+  const colorLight = hexToRgba(color, 0.1);
+  const { academyName = '매쓰그립수학학원', logoBase64 = '' } = settings || {};
+
+  const cardUid = uid || `${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+
+  // annualScores: scope 정보도 담기 위해 allStudents에서 직접 구축
+  const rawScores = allStudents
+    .filter(s => s.id === student.id && s.score !== null)
+    .map(s => ({ month: s.month, score: s.score, scope: s.scope || '' }))
+    .sort((a, b) => parseMonthLabel(a.month) - parseMonthLabel(b.month));
+
+  const slots = buildDataSlots(student.month, rawScores, allStudents, student.id);
+  const hasHistory = rawScores.length >= 1;
+
+  const { score, attStats, att2Stats, hwStats } = student;
+
+  const logoHtml = logoBase64
+    ? `<img src="${logoBase64}" alt="로고" class="rc-logo-img">`
+    : `<div class="rc-logo-placeholder">📐</div>`;
+
+  // canvas IDs
+  const attId  = makeCanvasId('att',  student.id, cardUid);
+  const att2Id = makeCanvasId('att2', student.id, cardUid);
+  const hwId   = makeCanvasId('hw',   student.id, cardUid);
+
+  // ── 성적 추이: 테이블 + 막대그래프 병렬 ────────────────
+  const maxScore = 100;
+
+  // 모든 슬롯 표시 (점수 없는 달도 포함)
+  const trendTableRows = slots.map(slot => {
+    const scopeText = slot.score !== null ? (slot.scope || '').replace(/;/g, ' / ').trim() : '';
+    const scoreText = slot.score !== null ? slot.score : '<span class="rc-trend-no-score">미시행</span>';
+    return `<tr class="${slot.isCurrent ? 'rc-trend-current' : ''}">
+      <td class="rc-trend-td-month">${shortMonth(slot.label)}</td>
+      <td class="rc-trend-td-score">${scoreText}</td>
+      <td class="rc-trend-td-scope">${scopeText}</td>
+    </tr>`;
+  }).join('');
+
+  const barsHtml = slots.map(slot => {
+    const pct = slot.score !== null ? Math.round(slot.score / maxScore * 100) : 0;
+    const barColor = slot.isCurrent ? BRAND_PRIMARY : hexToRgba(BRAND_PRIMARY, 0.45);
+    const scoreLabel = slot.score !== null ? `<div class="rc-bar-score">${slot.score}</div>` : '<div class="rc-bar-score">&nbsp;</div>';
+    const barInner = slot.score !== null
+      ? `<div class="rc-bar-fill" style="height:${pct}%;background:${barColor};"></div>`
+      : `<div class="rc-bar-empty"></div>`;
+    return `
+    <div class="rc-bar-col">
+      ${scoreLabel}
+      <div class="rc-bar-area">${barInner}</div>
+      <div class="rc-bar-label ${slot.isCurrent ? 'current' : ''}">${shortMonth(slot.label)}</div>
+    </div>`;
+  }).join('');
+
+  return `
+<div class="report-card" data-uid="${cardUid}" data-student-id="${student.id}"
+  style="--accent:${color};--accent-light:${colorLight};">
+
+  <!-- 헤더 -->
+  <div class="rc-header" style="border-bottom:3px solid ${BRAND_PRIMARY};">
+    <div class="rc-header-left">
+      ${logoHtml}
+      <div class="rc-academy-info">
+        <div class="rc-academy-name">${academyName}</div>
+        <div class="rc-academy-slogan">손에 잡히는 수학</div>
+      </div>
+    </div>
+    <div class="rc-doc-title" style="color:${BRAND_SECONDARY};">
+      ${student.month} 월말평가
+    </div>
+  </div>
+
+  <!-- 학생 정보 -->
+  <div class="rc-student-info" style="background:${hexToRgba(BRAND_SECONDARY, 0.05)};">
+    <div class="rc-info-grid">
+      <div class="rc-info-item">
+        <span class="rc-info-label">이름</span>
+        <span class="rc-info-value rc-name">${student.name}</span>
+      </div>
+      <div class="rc-info-item">
+        <span class="rc-info-label">학교</span>
+        <span class="rc-info-value">${student.school}</span>
+      </div>
+      <div class="rc-info-item">
+        <span class="rc-info-label">학년</span>
+        <span class="rc-info-value">${student.grade}</span>
+      </div>
+      <div class="rc-info-item">
+        <span class="rc-info-label">담당선생님</span>
+        <span class="rc-info-value" style="font-weight:700;">${student.teacher}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 이번달 성적 -->
+  <div class="rc-section">
+    <div class="rc-section-title" style="border-left:3px solid ${BRAND_PRIMARY};padding-left:8px;color:${BRAND_SECONDARY};">이번 달 성적</div>
+    <div class="rc-score-main">
+      <div class="rc-score-display">
+        <div class="rc-score-label">월말평가</div>
+        <div class="rc-score-number" style="color:${score !== null && score >= 90 ? '#15803d' : '#1a202c'};">
+          ${score !== null ? score : '–'}${score !== null ? '<span class="rc-score-unit">점</span>' : ''}
+        </div>
+      </div>
+      <div class="rc-scope-box" style="border-left:3px solid ${BRAND_PRIMARY};">
+        <div class="rc-scope-label">시험 범위</div>
+        <div class="rc-scope-text">${(student.scope || '–').replace(/;/g, ' / ')}</div>
+        ${student.progress ? `
+        <div class="rc-progress-row">
+          <span class="rc-progress-label">진도</span>
+          <span class="rc-progress-text">${student.progress.replace(/;/g, ' · ')}</span>
+        </div>` : ''}
+      </div>
+    </div>
+  </div>
+
+  <!-- 성적 추이 -->
+  <div class="rc-trend-section">
+    <div class="rc-trend-title" style="border-left:3px solid ${BRAND_PRIMARY};padding-left:8px;color:${BRAND_SECONDARY};">성적 추이</div>
+    <div class="rc-trend-layout">
+      <div class="rc-trend-table-wrap">
+        <table class="rc-trend-table">
+          <thead><tr><th>월</th><th>점수</th><th>범위</th></tr></thead>
+          <tbody>${trendTableRows || '<tr><td colspan="3" style="color:#a0aec0;text-align:center;">데이터 없음</td></tr>'}</tbody>
+        </table>
+      </div>
+      <div class="rc-trend-chart">
+        <div class="rc-bar-table">
+          ${barsHtml}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 학습 현황 -->
+  <div class="rc-section">
+    <div class="rc-section-title" style="border-left:3px solid ${BRAND_PRIMARY};padding-left:8px;color:${BRAND_SECONDARY};">학습 현황${student.dateStart && student.dateEnd ? `<span class="rc-date-range">${student.dateStart} ~ ${student.dateEnd}</span>` : ''}</div>
+    <div class="rc-stats-grid">
+
+      <!-- 출결 -->
+      <div class="rc-stat-card">
+        <div class="rc-stat-title">출결</div>
+        <div class="rc-donut-wrap">
+          <canvas id="${attId}" width="70" height="70"></canvas>
+          <div class="rc-donut-center">
+            <div class="rc-donut-pct">${attStats.rate}<span class="rc-donut-unit">%</span></div>
+          </div>
+        </div>
+        <div class="rc-stat-detail">
+          <span class="rc-stat-chip att-present">출석 ${attStats.present}</span>
+          <span class="rc-stat-chip att-late">지각 ${attStats.late}</span>
+          <span class="rc-stat-chip att-absent">결석 ${attStats.absent}</span>
+          <div class="rc-stat-total">전체 ${attStats.total}회</div>
+        </div>
+      </div>
+
+      <!-- 수업태도 -->
+      <div class="rc-stat-card">
+        <div class="rc-stat-title">수업태도</div>
+        <div class="rc-donut-wrap">
+          <canvas id="${att2Id}" width="70" height="70"></canvas>
+          <div class="rc-donut-center">
+            <div class="rc-donut-star">${att2Stats.starAvg}<span class="rc-donut-unit">★</span></div>
+          </div>
+        </div>
+        <div class="rc-stat-detail">
+          <span class="rc-stat-chip att-present">★★★ ${att2Stats.counts[0]}</span>
+          <span class="rc-stat-chip att-late">★★☆ ${att2Stats.counts[1]}</span>
+          <span class="rc-stat-chip att-absent">★☆☆ ${att2Stats.counts[2]}</span>
+          <div class="rc-stat-total">전체 ${att2Stats.total}회</div>
+        </div>
+      </div>
+
+      <!-- 숙제 -->
+      <div class="rc-stat-card">
+        <div class="rc-stat-title">숙제</div>
+        <div class="rc-donut-wrap">
+          <canvas id="${hwId}" width="70" height="70"></canvas>
+          <div class="rc-donut-center">
+            <div class="rc-donut-star">${hwStats.starAvg}<span class="rc-donut-unit">★</span></div>
+          </div>
+        </div>
+        <div class="rc-stat-detail">
+          <span class="rc-stat-chip att-present">★★★ ${hwStats.counts[0]}</span>
+          <span class="rc-stat-chip att-late">★★☆ ${hwStats.counts[1]}</span>
+          <span class="rc-stat-chip att-absent">★☆☆ ${hwStats.counts[2]}</span>
+          <div class="rc-stat-total">전체 ${hwStats.total}회${(hwStats.counts[3] || 0) > 0 ? ` (미제출 ${hwStats.counts[3]}회)` : ''}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 선생님 코멘트 (맨 아래) -->
+  <div class="rc-section rc-section-comment">
+    <div class="rc-section-title" style="border-left:3px solid ${color};padding-left:8px;color:${BRAND_SECONDARY};">선생님 코멘트</div>
+    <div class="rc-comment-box" style="border-left:3px solid ${color};background:${colorLight};">
+      <div class="rc-comment-text">${student.comment ? student.comment.replace(/;/g, '<br>') : '<span style="color:#a0aec0;font-style:italic;">—</span>'}</div>
+    </div>
+  </div>
+
+  <!-- 푸터 -->
+  <div class="rc-footer" style="border-top:2px solid ${hexToRgba(BRAND_PRIMARY, 0.2)};background:${hexToRgba(BRAND_SECONDARY, 0.04)};">
+    <div class="rc-footer-text">${academyName} · 손에 잡히는 수학</div>
+  </div>
+</div>`;
+}
+
+// ── 차트 렌더링 (도넛 3개만, 막대는 CSS) ─────────────────
+function renderCharts(student, allStudents, accentColor, uid) {
+  const cardUid = uid || findCardUid(student.id);
+  if (!cardUid) return;
+
+  const attId  = makeCanvasId('att',  student.id, cardUid);
+  const att2Id = makeCanvasId('att2', student.id, cardUid);
+  const hwId   = makeCanvasId('hw',   student.id, cardUid);
+
+  renderDonut(attId,
+    [student.attStats.present, student.attStats.late, student.attStats.absent],
+    ['출석','지각','결석'],
+    ['#19b1c6','#f59e0b','#ef4444']);
+
+  renderDonut(att2Id,
+    [student.att2Stats.counts[0], student.att2Stats.counts[1], student.att2Stats.counts[2]],
+    ['★★★','★★☆','★☆☆'],
+    ['#19b1c6','#f59e0b','#f97316']);
+
+  renderDonut(hwId,
+    [student.hwStats.counts[0], student.hwStats.counts[1], student.hwStats.counts[2], student.hwStats.counts[3] || 0],
+    ['★★★','★★☆','★☆☆','☆☆☆'],
+    ['#19b1c6','#f59e0b','#f97316','#ef4444']);
+}
+
+// DOM에서 student.id에 해당하는 카드의 uid를 찾아줌
+function findCardUid(studentId) {
+  const card = document.querySelector(`.report-card[data-student-id="${studentId}"]`);
+  return card ? card.dataset.uid : null;
+}
+
+function renderDonut(canvasId, data, labels, colors) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  destroyChart(canvasId);
+
+  const total = data.reduce((s, v) => s + v, 0);
+  const chartData   = total > 0 ? data   : [1];
+  const chartColors = total > 0 ? colors : ['#e2e8f0'];
+
+  const ctx = canvas.getContext('2d');
+  const inst = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: total > 0 ? labels : ['데이터 없음'],
+      datasets: [{ data: chartData, backgroundColor: chartColors, borderWidth: 0 }]
+    },
+    options: {
+      responsive: false,
+      animation: false,
+      cutout: '65%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => `${c.label}: ${c.parsed}` } }
+      }
+    }
+  });
+  chartInstances.set(canvasId, inst);
+}
+
+function destroyChart(id) {
+  if (chartInstances.has(id)) {
+    chartInstances.get(id).destroy();
+    chartInstances.delete(id);
+  }
+  // Chart.js 내부 캐시도 제거
+  const canvas = document.getElementById(id);
+  if (canvas) {
+    const existing = Chart.getChart(canvas);
+    if (existing) existing.destroy();
+  }
+}
+
+function destroyAllCharts() {
+  chartInstances.forEach(c => { try { c.destroy(); } catch(e) {} });
+  chartInstances.clear();
+}
+
+
+// -- print.js --
+// ============================================================
+//  print.js — PDF 출력 / 프린트 처리 (버그 수정 v2)
+// ============================================================
+
+
+
+/**
+ * 선택된 학생들의 레포트를 프린트
+ */
+async function printReports(students, allStudents) {
+  if (!students || students.length === 0) {
+    alert('출력할 학생을 선택해주세요.');
+    return;
+  }
+
+  const state = AppStore.getState();
+  const { academyName, logoBase64, teacherColors } = state;
+
+  // ── 기존 프린트 컨테이너 완전 제거 ──────────────────────
+  const existing = document.getElementById('print-container');
+  if (existing) {
+    // 기존 차트 먼저 제거
+    existing.querySelectorAll('canvas').forEach(c => {
+      const chart = Chart.getChart(c);
+      if (chart) chart.destroy();
+    });
+    existing.remove();
+  }
+
+  // ── 새 프린트 컨테이너 생성 ──────────────────────────────
+  const printContainer = document.createElement('div');
+  printContainer.id = 'print-container';
+  printContainer.style.display = 'none';
+  document.body.appendChild(printContainer);
+
+  // ── 학생별 카드 생성 (uid 매핑 저장) ─────────────────────
+  const uidMap = new Map(); // student → uid
+
+  for (const student of students) {
+    const uid   = `print_${student.id}_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
+    const color = getTeacherColor(student.teacher, state);
+    const html  = buildReportCard(student, allStudents, color, { academyName, logoBase64, teacherColors }, uid);
+
+    const page = document.createElement('div');
+    page.className = 'print-page';
+    page.innerHTML = html;
+    printContainer.appendChild(page);
+
+    uidMap.set(student, uid);
+  }
+
+  // ── DOM 반영 후 차트 렌더링 ───────────────────────────────
+  printContainer.style.display = 'block';
+  await sleep(120); // DOM paint 대기
+
+  for (const [student, uid] of uidMap) {
+    const color = getTeacherColor(student.teacher, state);
+    renderCharts(student, allStudents, color, uid);
+  }
+
+  await sleep(600); // 차트 렌더 완료 대기
+
+  // ── 인쇄 실행 ────────────────────────────────────────────
+  window.print();
+
+  // ── 클린업 ───────────────────────────────────────────────
+  setTimeout(() => {
+    printContainer.querySelectorAll('canvas').forEach(c => {
+      const chart = Chart.getChart(c);
+      if (chart) chart.destroy();
+    });
+    printContainer.remove();
+  }, 1500);
+}
+
+/**
+ * 단일 학생 미리보기 모달
+ */
+function previewReport(student, allStudents, accentColor) {
+  const state = AppStore.getState();
+  const { academyName, logoBase64, teacherColors } = state;
+
+  // 기존 모달 제거 (차트 포함)
+  const existing = document.getElementById('preview-modal');
+  if (existing) {
+    existing.querySelectorAll('canvas').forEach(c => {
+      const chart = Chart.getChart(c);
+      if (chart) chart.destroy();
+    });
+    existing.remove();
+  }
+
+  const color = accentColor || '#3B82F6';
+  const uid   = `preview_${Date.now()}`;
+  const html  = buildReportCard(student, allStudents, color, { academyName, logoBase64, teacherColors }, uid);
+
+  const modal = document.createElement('div');
+  modal.id = 'preview-modal';
+  modal.className = 'preview-modal-overlay';
+  modal.innerHTML = `
+    <div class="preview-modal-content">
+      <div class="preview-modal-header">
+        <span>📋 레포트 미리보기 — ${student.name}</span>
+        <div class="preview-modal-actions">
+          <button class="btn btn-primary btn-sm" id="btnPrintSingle">🖨️ 인쇄</button>
+          <button class="btn btn-ghost btn-sm" id="btnClosePreview">✕ 닫기</button>
+        </div>
+      </div>
+      <div class="preview-modal-body">${html}</div>
+    </div>`;
+
+  document.body.appendChild(modal);
+
+  // 차트 렌더링 (DOM 반영 후)
+  setTimeout(() => {
+    renderCharts(student, allStudents, color, uid);
+  }, 150);
+
+  // 닫기
+  const closeModal = () => {
+    modal.querySelectorAll('canvas').forEach(c => {
+      const chart = Chart.getChart(c);
+      if (chart) chart.destroy();
+    });
+    modal.remove();
+  };
+
+  document.getElementById('btnClosePreview').addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+  // 단일 인쇄
+  document.getElementById('btnPrintSingle').addEventListener('click', () => {
+    printReports([student], allStudents);
+  });
+}
+
+// ── 유틸 ─────────────────────────────────────────────────
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+
+
+/**
+ * 인쇄 시 카드 내용이 A4 1페이지를 넘칠 때 자동 축소
+ * - 코멘트 텍스트 폰트 축소 (12px → 11px → 10px)
+ * - 그래도 넘치면 카드 전체 scale 축소
+ */
+function autoFitCards(container) {
+  const MAX_HEIGHT = 792; // A4 비율 기준 최대 높이 (px)
+  const cards = container.querySelectorAll('.report-card');
+
+  cards.forEach(card => {
+    // 인쇄용이므로 고정 높이 제한 해제하고 실제 높이 측정
+    card.style.maxHeight = 'none';
+    card.style.minHeight = 'none';
+
+    let h = card.scrollHeight;
+    if (h <= MAX_HEIGHT) {
+      // 넘치지 않으면 원래대로
+      card.style.maxHeight = '';
+      card.style.minHeight = '';
+      return;
+    }
+
+    // 1단계: 코멘트 텍스트 폰트 축소
+    const commentEl = card.querySelector('.rc-comment-text');
+    if (commentEl) {
+      const fontSizes = [11, 10, 9];
+      for (const fs of fontSizes) {
+        commentEl.style.fontSize = fs + 'px';
+        commentEl.style.lineHeight = '1.5';
+        h = card.scrollHeight;
+        if (h <= MAX_HEIGHT) break;
+      }
+    }
+
+    // 2단계: 그래도 넘치면 카드 전체 CSS scale 축소
+    if (card.scrollHeight > MAX_HEIGHT) {
+      const ratio = MAX_HEIGHT / card.scrollHeight;
+      const scale = Math.max(ratio, 0.82); // 최소 82%까지만 축소
+      card.style.transform = `scale(${scale})`;
+      card.style.transformOrigin = 'top center';
+    }
+
+    card.style.maxHeight = '';
+    card.style.minHeight = '';
+  });
+}
+
+
+
+// -- index.html inline logic --
+
+
+// ── 초기화 ──────────────────────────────────────────────────
+AppStore.loadSettings();
+let appState = AppStore.getState();
+
+// 설정 복원
+document.getElementById('inputAcademy').value = appState.academyName || '매쓰그립수학학원';
+if (appState.logoBase64) {
+  document.getElementById('logoPreview').src = appState.logoBase64;
+  document.getElementById('logoPreview').style.display = 'block';
+  document.getElementById('logoPlaceholder').style.display = 'none';
+  document.getElementById('btnRemoveLogo').style.display = 'inline-flex';
+}
+
+// 구글 시트 설정 복원
+const savedScriptUrl = localStorage.getItem('mg_script_url') || '';
+const savedSheetId   = localStorage.getItem('mg_sheet_id')   || '';
+if (savedScriptUrl) document.getElementById('inputScriptUrl').value = savedScriptUrl;
+if (savedSheetId)   document.getElementById('inputSheetId').value   = savedSheetId;
+if (savedScriptUrl && savedSheetId) {
+  initSheetPanel(savedScriptUrl, savedSheetId);
+  // 시트 연동됨 → 환영화면에 자동 로드 버튼 표시
+  document.getElementById('welcomeNoSheet').style.display = 'none';
+  document.getElementById('welcomeAutoLoad').style.display = '';
+} else {
+  document.getElementById('welcomeNoSheet').style.display = '';
+  document.getElementById('welcomeAutoLoad').style.display = 'none';
+}
+
+// 앱 타이틀 업데이트
+document.getElementById('appTitle').textContent = `${appState.academyName || '매쓰그립'} 월말평가 레포트`;
+
+// ── 탭 전환 ───────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-reports').style.display = tab === 'reports' ? '' : 'none';
+    document.getElementById('tab-settings').style.display = tab === 'settings' ? '' : 'none';
+  });
+});
+
+// ── 환영 화면 버튼 ────────────────────────────────────────
+document.getElementById('welcomeSheetBtn').addEventListener('click', () => {
+  switchToSettingsTab();
+});
+
+// ── 구글 시트 패널 초기화 ────────────────────────────────
+function initSheetPanel(scriptUrl, sheetId) {
+  if (!scriptUrl || !sheetId) return;
+
+  document.getElementById('sheetNotConnected').style.display = 'none';
+  document.getElementById('connectedSheetIdLabel').textContent = sheetId.slice(0, 16) + '…';
+  document.getElementById('sheetLoadRow').style.display = '';
+  document.getElementById('sheetStatusBadge').style.display = '';
+  document.getElementById('btnChangeSheet').style.display = '';
+
+  populateSheetMonthSelect();
+}
+
+function populateSheetMonthSelect() {
+  const sel = document.getElementById('sheetMonthSelect');
+  sel.innerHTML = '<option value="">📅 기준월 선택...</option>';
+  const now = new Date();
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const tabName = makeTabName(d.getFullYear(), d.getMonth() + 1);
+    const opt = document.createElement('option');
+    opt.value = tabName;
+    opt.textContent = `${d.getFullYear()}년 ${d.getMonth() + 1}월`;
+    if (i === 0) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+
+// ── 구글 시트에서 불러오기 (공통 함수) ────────────────────
+async function loadFromSheet(tabName) {
+  const scriptUrl = localStorage.getItem('mg_script_url');
+  const sheetId   = localStorage.getItem('mg_sheet_id');
+  if (!scriptUrl || !sheetId || !tabName) return;
+
+  // 로딩 UI
+  const sidebarLoading = document.getElementById('sheetLoadingBox');
+  const sidebarMsg     = document.getElementById('sheetLoadingMsg');
+  const centerLoading  = document.getElementById('welcomeLoading');
+  const centerMsg      = document.getElementById('centerLoadingMsg');
+  const loadRow        = document.getElementById('sheetLoadRow');
+
+  loadRow.style.display = 'none';
+  sidebarLoading.style.display = 'flex';
+  document.getElementById('welcomeNoSheet').style.display = 'none';
+  document.getElementById('welcomeAutoLoad').style.display = 'none';
+  centerLoading.style.display = '';
+
+  function setMsg(msg) {
+    sidebarMsg.textContent = msg;
+    centerMsg.textContent = msg;
+  }
+
+  setMsg('시트 탭 목록 확인 중...');
+  let allStudents = [];
+
+  try {
+    // 1. 탭 목록 가져오기
+    let existingTabs = [];
+    try {
+      existingTabs = await fetchTabList(scriptUrl, sheetId);
+    } catch (e) {
+      console.warn('[탭 목록 조회 실패]', e.message);
+    }
+
+    // 2. YYYY-MM 형식 탭만 필터
+    const yyyymmTabs = existingTabs.filter(t => /^\d{4}-\d{2}$/.test(t)).sort();
+
+    let allTabs;
+    if (yyyymmTabs.length > 0) {
+      const prevTabs = yyyymmTabs.filter(t => t < tabName).slice(-6);
+      allTabs = [...prevTabs];
+      if (!allTabs.includes(tabName)) allTabs.push(tabName);
+    } else {
+      const mm = tabName.match(/^(\d{4})-(\d{2})$/);
+      const prevTabs = [];
+      if (mm) {
+        let y = Number(mm[1]), mo = Number(mm[2]);
+        for (let i = 6; i >= 1; i--) {
+          let py = y, pmo = mo - i;
+          while (pmo <= 0) { pmo += 12; py--; }
+          prevTabs.push(makeTabName(py, pmo));
+        }
+      }
+      allTabs = [...prevTabs, tabName];
+    }
+
+    // 탭별 데이터 로드
+    for (let i = 0; i < allTabs.length; i++) {
+      setMsg(`(${i+1}/${allTabs.length}) ${allTabs[i]} 불러오는 중...`);
+      try {
+        const csvText = await fetchSheetTab(scriptUrl, sheetId, allTabs[i]);
+        const parsed  = parseCSV(csvText);
+        if (parsed.length > 0) allStudents = allStudents.concat(parsed);
+      } catch (tabErr) {
+        console.info(`[탭 없음] ${allTabs[i]}:`, tabErr.message);
+      }
+    }
+
+    if (allStudents.length === 0) {
+      throw new Error(`데이터가 없습니다. 기준월 탭(${tabName})을 확인해주세요.`);
+    }
+
+    AppStore.setAllStudents(allStudents, `구글시트:${tabName}`);
+    const loadedTabs = allTabs.filter(t => allStudents.some(s => s.month === tabNameToNotionMonth(t)));
+    showToast(`✅ ${allStudents.length}건 로드 완료! (${loadedTabs.length}개월 데이터)`, 'success');
+
+    const notionMonth = tabNameToNotionMonth(tabName);
+    if (notionMonth) AppStore.setSelectedMonth(notionMonth);
+
+    // 포함된 월 칩 표시
+    const panel = document.getElementById('loadedMonthsPanel');
+    const chips = document.getElementById('loadedMonthChips');
+    panel.style.display = '';
+    chips.innerHTML = loadedTabs.map(t => {
+      const isCur = t === tabName;
+      return `<span class="loaded-month-chip ${isCur ? 'current' : 'loaded'}">${tabNameToNotionMonth(t)}</span>`;
+    }).join('');
+
+    // 학생 사이드바 표시
+    document.getElementById('studentSidebar').style.display = '';
+
+    renderAll();
+
+  } catch (err) {
+    console.error('[시트 로드 오류]', err);
+    showToast(`❌ ${err.message}`, 'error');
+  } finally {
+    sidebarLoading.style.display = 'none';
+    centerLoading.style.display = 'none';
+    loadRow.style.display = '';
+  }
+}
+
+// 사이드바 불러오기 버튼
+document.getElementById('btnLoadFromSheet').addEventListener('click', () => {
+  const tabName = document.getElementById('sheetMonthSelect').value;
+  if (!tabName) { showToast('기준월을 선택해주세요.', 'warning'); return; }
+  loadFromSheet(tabName);
+});
+
+// 중앙 자동 로드 버튼
+document.getElementById('btnAutoLoad').addEventListener('click', () => {
+  const sel = document.getElementById('sheetMonthSelect');
+  const tabName = sel.value || sel.options[1]?.value; // 첫 번째 실제 옵션 (최신월)
+  if (tabName) loadFromSheet(tabName);
+});
+
+// ── 구글 시트 설정 ─────────────────────────────────────
+document.getElementById('btnGoToSheetSettings').addEventListener('click', switchToSettingsTab);
+document.getElementById('btnChangeSheet').addEventListener('click', switchToSettingsTab);
+
+function switchToSettingsTab() {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-tab="settings"]').classList.add('active');
+  document.getElementById('tab-reports').style.display = 'none';
+  document.getElementById('tab-settings').style.display = '';
+  // 스크롤을 시트 연동 카드로
+  setTimeout(() => {
+    document.getElementById('inputSheetId').focus();
+  }, 100);
+}
+
+// 연결 테스트
+document.getElementById('btnTestSheet').addEventListener('click', async () => {
+  const scriptUrl = document.getElementById('inputScriptUrl').value.trim();
+  const sheetId   = extractSheetId(document.getElementById('inputSheetId').value.trim());
+  const resultBox = document.getElementById('sheetTestResult');
+  const btn       = document.getElementById('btnTestSheet');
+
+  btn.disabled    = true;
+  btn.textContent = '⏳ 테스트 중...';
+  resultBox.style.display = 'none';
+
+  try {
+    const result = await validateConnection(scriptUrl, sheetId);
+    resultBox.style.display    = '';
+    resultBox.style.background = result.ok ? '#F0FDF4' : '#FEF2F2';
+    resultBox.style.color      = result.ok ? '#166534' : '#DC2626';
+    resultBox.style.whiteSpace = 'pre-line';
+    resultBox.textContent      = result.message;
+  } catch (e) {
+    resultBox.style.display    = '';
+    resultBox.style.background = '#FEF2F2';
+    resultBox.style.color      = '#DC2626';
+    resultBox.textContent      = `❌ 연결 실패: ${e.message}`;
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = '🔍 연결 테스트';
+  }
+});
+
+// Apps Script URL + 시트 ID 저장
+document.getElementById('btnSaveSheetId').addEventListener('click', () => {
+  const scriptUrl = document.getElementById('inputScriptUrl').value.trim();
+  const sheetId   = extractSheetId(document.getElementById('inputSheetId').value.trim());
+
+  if (!scriptUrl) { showToast('Apps Script URL을 입력해주세요.', 'warning'); return; }
+  if (!sheetId)   { showToast('구글 시트 ID를 입력해주세요.', 'warning'); return; }
+
+  localStorage.setItem('mg_script_url', scriptUrl);
+  localStorage.setItem('mg_sheet_id',   sheetId);
+  initSheetPanel(scriptUrl, sheetId);
+  showToast('✅ 구글 시트가 연동되었습니다!', 'success');
+
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-tab="reports"]').classList.add('active');
+  document.getElementById('tab-reports').style.display  = '';
+  document.getElementById('tab-settings').style.display = 'none';
+});
+
+// ── 상태 렌더링 ──────────────────────────────────────────
+function renderAll() {
+  const s = AppStore.getState();
+  if (!s.isLoaded) return;
+
+  const months = getMonths(s.allStudents);
+  const monthSelect = document.getElementById('monthSelect');
+  monthSelect.disabled = false;
+  monthSelect.innerHTML = '<option value="">📅 시행월 선택...</option>';
+  months.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m;
+    opt.textContent = m;
+    if (m === s.selectedMonth) opt.selected = true;
+    monthSelect.appendChild(opt);
+  });
+
+  ['searchInput','btnSelectAll'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = false;
+  });
+
+  renderFilterChips(s);
+  renderStudentList(s);
+  renderReportCards(s);
+  updateStats(s);
+  renderTeacherColorList(s);
+
+  if (s.selectedMonth) {
+    document.getElementById('appSubtitle').textContent = `${s.selectedMonth} · ${s.currentMonthStudents.length}명`;
+  }
+}
+
+function renderFilterChips(s) {
+  const monthStudents = s.currentMonthStudents;
+  const teachers = getTeachers(monthStudents);
+  const grades = getGrades(monthStudents);
+  const bar = document.getElementById('chipFilterBar');
+
+  if (monthStudents.length === 0) { bar.style.display = 'none'; return; }
+  bar.style.display = '';
+
+  // 선생님 칩
+  const tc = document.getElementById('teacherChips');
+  const allTeacherActive = s.filterTeachers.size === 0;
+  tc.innerHTML = `<button class="filter-chip ${allTeacherActive ? 'active' : ''}" data-action="clear-teacher">전체</button>`
+    + teachers.map(t => {
+      const active = s.filterTeachers.has(t);
+      const color = getTeacherColor(t, s);
+      const count = monthStudents.filter(st => st.teacher === t).length;
+      return `<button class="filter-chip ${active ? 'active' : ''}" data-teacher="${t}"><span class="chip-dot" style="background:${color};"></span>${t} <span class="chip-count">${count}</span></button>`;
+    }).join('');
+
+  tc.querySelectorAll('[data-teacher]').forEach(btn => {
+    btn.addEventListener('click', () => { AppStore.toggleFilterTeacher(btn.dataset.teacher); renderAll(); });
+  });
+  tc.querySelector('[data-action="clear-teacher"]').addEventListener('click', () => { AppStore.clearFilterTeachers(); renderAll(); });
+
+  // 학년 칩
+  const gc = document.getElementById('gradeChips');
+  const allGradeActive = s.filterGrades.size === 0;
+  gc.innerHTML = `<button class="filter-chip ${allGradeActive ? 'active' : ''}" data-action="clear-grade">전체</button>`
+    + grades.map(g => {
+      const active = s.filterGrades.has(g);
+      const count = monthStudents.filter(st => st.grade === g).length;
+      return `<button class="filter-chip ${active ? 'active' : ''}" data-grade="${g}">${g} <span class="chip-count">${count}</span></button>`;
+    }).join('');
+
+  gc.querySelectorAll('[data-grade]').forEach(btn => {
+    btn.addEventListener('click', () => { AppStore.toggleFilterGrade(btn.dataset.grade); renderAll(); });
+  });
+  gc.querySelector('[data-action="clear-grade"]').addEventListener('click', () => { AppStore.clearFilterGrades(); renderAll(); });
+}
+
+function renderStudentList(s) {
+  const list = document.getElementById('studentList');
+  const students = sortStudents(s.filteredStudents);
+
+  document.getElementById('studentCount').textContent = `학생 ${students.length}명`;
+  document.getElementById('btnClearSelection').disabled = s.selectedStudentIds.size === 0;
+
+  if (students.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">검색 결과 없음</div><div class="empty-desc">필터를 조정해보세요</div></div>`;
+    return;
+  }
+
+  list.innerHTML = students.map(student => {
+    const key = makeKey(student);
+    const isSelected = s.selectedStudentIds.has(key);
+    const color = getTeacherColor(student.teacher, s);
+    const scoreCls = getScoreClass(student.score);
+    const scoreLabel = student.score !== null ? `${student.score}점` : '–';
+
+    return `<div class="student-item ${isSelected ? 'selected' : ''}" data-key="${key}">
+      <input type="checkbox" class="student-checkbox" ${isSelected ? 'checked' : ''} data-key="${key}" onclick="event.stopPropagation()">
+      <div class="student-color-dot" style="background:${color};"></div>
+      <div class="student-info">
+        <div class="student-name">${student.name}</div>
+        <div class="student-meta">${student.school} · ${student.grade} · ${student.teacher}</div>
+      </div>
+      <span class="student-score-badge ${scoreCls}">${scoreLabel}</span>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.student-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      if (e.target.classList.contains('student-checkbox')) return;
+      AppStore.toggleSelect(item.dataset.key);
+      renderAll();
+    });
+  });
+
+  list.querySelectorAll('.student-checkbox').forEach(cb => {
+    cb.addEventListener('change', () => {
+      AppStore.toggleSelect(cb.dataset.key);
+      renderAll();
+    });
+  });
+}
+
+// uid 저장 맵 (makeKey → uid) — 차트 렌더링에 재사용
+const cardUidMap = new Map();
+
+function renderReportCards(s) {
+  const grid    = document.getElementById('reportGrid');
+  const welcome = document.getElementById('welcomeScreen');
+
+  if (!s.isLoaded || s.filteredStudents.length === 0) {
+    grid.style.display    = 'none';
+    welcome.style.display = '';
+    return;
+  }
+
+  welcome.style.display = 'none';
+  document.getElementById('statsBar').style.display = '';
+  grid.style.display = '';
+
+  destroyAllCharts();
+  cardUidMap.clear();
+  grid.innerHTML = '';
+
+  // 선택된 학생이 있으면 선택된 것만, 없으면 필터된 전체
+  const showStudents = s.selectedStudentIds.size > 0
+    ? s.filteredStudents.filter(st => s.selectedStudentIds.has(makeKey(st)))
+    : s.filteredStudents;
+  const preview = showStudents.slice(0, 50);
+
+  preview.forEach(student => {
+    const color    = getTeacherColor(student.teacher, s);
+    const settings = { academyName: s.academyName, logoBase64: s.logoBase64, teacherColors: s.teacherColors };
+    const uid      = `card_${student.id}_${Date.now()}_${Math.random().toString(36).slice(2,5)}`;
+    const html     = buildReportCard(student, s.allStudents, color, settings, uid);
+
+    cardUidMap.set(makeKey(student), uid);
+
+    const actions = document.createElement('div');
+    actions.style.cssText = 'display:flex;gap:6px;margin-bottom:8px;';
+    actions.innerHTML = `
+      <button class="btn btn-ghost btn-xs" data-action="preview"      data-key="${makeKey(student)}">👁️ 미리보기</button>
+      <button class="btn btn-ghost btn-xs" data-action="print-single" data-key="${makeKey(student)}">🖨️ 인쇄</button>
+    `;
+
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+
+    const outer = document.createElement('div');
+    outer.style.cssText = 'flex-shrink:0;';
+    outer.appendChild(actions);
+    outer.appendChild(wrapper);
+    grid.appendChild(outer);
+  });
+
+  if (showStudents.length > 50) {
+    const more = document.createElement('div');
+    more.style.cssText = 'grid-column:1/-1;text-align:center;color:#94A3B8;padding:16px;font-size:13px;';
+    more.textContent = `+ ${showStudents.length - 50}명 더 있습니다. 인쇄 시 전체 포함됩니다.`;
+    grid.appendChild(more);
+  }
+
+  // 차트 렌더링
+  setTimeout(() => {
+    preview.forEach(student => {
+      const uid   = cardUidMap.get(makeKey(student));
+      const color = getTeacherColor(student.teacher, s);
+      renderCharts(student, s.allStudents, color, uid);
+    });
+  }, 200);
+
+  grid.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const student = s.filteredStudents.find(st => makeKey(st) === btn.dataset.key);
+      if (!student) return;
+      const color = getTeacherColor(student.teacher, s);
+      if (btn.dataset.action === 'preview') {
+        previewReport(student, s.allStudents, color);
+      } else if (btn.dataset.action === 'print-single') {
+        printReports([student], s.allStudents);
+      }
+    });
+  });
+}
+
+function updateStats(s) {
+  // 필터된 그룹 기준 통계
+  const students = s.filteredStudents;
+  const withScore = students.filter(st => st.score !== null);
+  const avg = withScore.length > 0
+    ? Math.round(withScore.reduce((sum, st) => sum + st.score, 0) / withScore.length) : null;
+  const max = withScore.length > 0 ? Math.max(...withScore.map(st => st.score)) : null;
+  const min = withScore.length > 0 ? Math.min(...withScore.map(st => st.score)) : null;
+
+  // 그룹 라벨 생성
+  const filters = [];
+  if (s.filterTeachers && s.filterTeachers.size > 0) filters.push([...s.filterTeachers].join(' · '));
+  if (s.filterGrades && s.filterGrades.size > 0) filters.push([...s.filterGrades].join(' · '));
+  const groupLabel = filters.length > 0 ? filters.join(' / ') : '이번 달 전체';
+
+  document.getElementById('statGroupLabel').textContent = groupLabel;
+  document.getElementById('statTotal').textContent = students.length;
+  document.getElementById('statAvgScore').textContent = avg !== null ? avg : '–';
+  document.getElementById('statMaxScore').textContent = max !== null ? max : '–';
+  document.getElementById('statMinScore').textContent = min !== null ? `최저 ${min}점` : '';
+  document.getElementById('statSelected').textContent = s.selectedStudentIds.size;
+
+  const selBar = document.getElementById('selectionBar');
+  if (s.selectedStudentIds.size > 0) {
+    selBar.classList.add('visible');
+    document.getElementById('selectionInfo').textContent = `${s.selectedStudentIds.size}명 선택됨`;
+    document.getElementById('btnPrintSelected').disabled = false;
+  } else {
+    selBar.classList.remove('visible');
+    document.getElementById('btnPrintSelected').disabled = true;
+  }
+}
+
+function renderTeacherColorList(s) {
+  const container = document.getElementById('teacherColorList');
+  const teachers = getTeachers(s.allStudents);
+
+  if (teachers.length === 0) {
+    container.innerHTML = '<div style="color:#94A3B8;font-size:13px;padding:12px 0;text-align:center;">데이터를 먼저 불러와주세요</div>';
+    return;
+  }
+
+  container.innerHTML = teachers.map(teacher => {
+    const currentColor = getTeacherColor(teacher, s);
+    return `
+    <div class="teacher-color-item">
+      <div class="teacher-color-name">${teacher}</div>
+      <div class="color-presets">
+        ${DEFAULT_TEACHER_COLORS.map(c => `
+          <button class="color-preset-btn ${currentColor === c.value ? 'active' : ''}"
+            style="background:${c.value};" title="${c.name}"
+            data-teacher="${teacher}" data-color="${c.value}">
+          </button>`).join('')}
+        <input type="color" class="color-custom-input"
+          value="${currentColor}" data-teacher="${teacher}" title="커스텀 색상">
+      </div>
+      <div class="teacher-color-preview" style="background:${currentColor};"></div>
+    </div>`;
+  }).join('');
+
+  container.querySelectorAll('.color-preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      AppStore.setTeacherColor(btn.dataset.teacher, btn.dataset.color);
+      renderAll();
+    });
+  });
+
+  container.querySelectorAll('.color-custom-input').forEach(input => {
+    input.addEventListener('input', () => {
+      AppStore.setTeacherColor(input.dataset.teacher, input.value);
+      renderAll();
+    });
+  });
+}
+
+// ── 공통 이벤트 ──────────────────────────────────────────
+document.getElementById('sortSelect').addEventListener('change', () => renderAll());
+
+document.getElementById('monthSelect').addEventListener('change', (e) => {
+  AppStore.setSelectedMonth(e.target.value);
+  renderAll();
+});
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  AppStore.setFilter('filterSearch', e.target.value);
+  renderAll();
+});
+
+document.getElementById('btnSelectAll').addEventListener('click', () => {
+  AppStore.selectAll(); renderAll();
+});
+
+document.getElementById('btnClearSelection').addEventListener('click', () => {
+  AppStore.clearSelection(); renderAll();
+});
+
+document.getElementById('btnPrintSelected').addEventListener('click', () => {
+  printReports(AppStore.getSelectedStudents(), AppStore.getState().allStudents);
+});
+
+document.getElementById('btnPrintAll').addEventListener('click', () => {
+  printReports(AppStore.getSelectedStudents(), AppStore.getState().allStudents);
+});
+
+document.getElementById('btnPreviewFirst').addEventListener('click', () => {
+  const selected = AppStore.getSelectedStudents();
+  if (!selected.length) return;
+  const s = AppStore.getState();
+  previewReport(selected[0], s.allStudents, getTeacherColor(selected[0].teacher, s));
+});
+
+document.getElementById('btnSettings').addEventListener('click', switchToSettingsTab);
+
+document.getElementById('btnSaveSettings').addEventListener('click', () => {
+  const academyName = document.getElementById('inputAcademy').value.trim() || '매쓰그립수학학원';
+  AppStore.saveSettings({ academyName });
+  showToast('✅ 설정이 저장되었습니다.', 'success');
+  document.getElementById('appTitle').textContent = `${academyName} 월말평가 레포트`;
+  renderAll();
+});
+
+document.getElementById('logoUploadArea').addEventListener('click', () => {
+  document.getElementById('logoInput').click();
+});
+
+document.getElementById('logoInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 500 * 1024) {
+    showToast('로고 파일이 너무 큽니다. 500KB 이하로 업로드해주세요.', 'warning');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const base64 = ev.target.result;
+    document.getElementById('logoPreview').src = base64;
+    document.getElementById('logoPreview').style.display = 'block';
+    document.getElementById('logoPlaceholder').style.display = 'none';
+    document.getElementById('btnRemoveLogo').style.display = 'inline-flex';
+    AppStore.saveSettings({ logoBase64: base64 });
+    showToast('✅ 로고가 업로드되었습니다.', 'success');
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('btnRemoveLogo').addEventListener('click', () => {
+  document.getElementById('logoPreview').src = '';
+  document.getElementById('logoPreview').style.display = 'none';
+  document.getElementById('logoPlaceholder').style.display = '';
+  document.getElementById('btnRemoveLogo').style.display = 'none';
+  AppStore.saveSettings({ logoBase64: '' });
+  showToast('로고가 삭제되었습니다.', 'info');
+});
+
+// ── 유틸리티 ─────────────────────────────────────────────
+function sortStudents(students) {
+  const sortBy = document.getElementById('sortSelect').value;
+  const sorted = [...students];
+  switch (sortBy) {
+    case 'name':
+      sorted.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+      break;
+    case 'grade':
+      sorted.sort((a, b) => gradeOrder(a.grade) - gradeOrder(b.grade) || a.name.localeCompare(b.name, 'ko'));
+      break;
+    case 'teacher':
+      sorted.sort((a, b) => a.teacher.localeCompare(b.teacher, 'ko') || a.name.localeCompare(b.name, 'ko'));
+      break;
+    case 'score-desc':
+      sorted.sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
+      break;
+    case 'score-asc':
+      sorted.sort((a, b) => (a.score ?? 999) - (b.score ?? 999));
+      break;
+  }
+  return sorted;
+}
+
+
+
+function getTeacherColor(teacher, s) {
+  if (s.teacherColors && s.teacherColors[teacher]) return s.teacherColors[teacher];
+  const colors = DEFAULT_TEACHER_COLORS.map(c => c.value);
+  const teachers = [...new Set((s.allStudents || []).map(st => st.teacher).filter(Boolean))].sort();
+  return colors[teachers.indexOf(teacher) % colors.length] || '#3B82F6';
+}
+
+function getScoreClass(score) {
+  if (score === null || score === undefined) return 'score-na';
+  if (score >= 90) return 'score-a';
+  return 'score-default';
+}
+
+function showToast(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+</script>
+</body>
+</html>
