@@ -2981,8 +2981,48 @@ if (savedScriptUrl && savedSheetId) {
   document.getElementById('inputScriptUrl').value = savedScriptUrl;
   document.getElementById('inputSheetId').value = savedSheetId;
   initSheetPanel(savedScriptUrl, savedSheetId);
-  document.getElementById('welcomeNoSheet').style.display = 'none';
-  document.getElementById('welcomeAutoLoad').style.display = '';
+
+  // 캐시 복원 시도
+  let cacheRestored = false;
+  try {
+    const raw = localStorage.getItem('mg_students_cache');
+    if (raw) {
+      const cache = JSON.parse(raw);
+      if (cache.sheetId === savedSheetId && Array.isArray(cache.students) && cache.students.length > 0) {
+        AppStore.setAllStudents(cache.students, `구글시트:${cache.tabName}`);
+        const notionMonth = tabNameToNotionMonth(cache.tabName);
+        if (notionMonth) AppStore.setSelectedMonth(notionMonth);
+
+        // 월 칩 표시
+        const uniqueMonths = [...new Set(cache.students.map(s => s.month).filter(Boolean))];
+        uniqueMonths.sort((a, b) => {
+          const parse = m => { const r = m.match(/(\d+)년\s*(\d+)월/); return r ? +r[1]*100 + +r[2] : 0; };
+          return parse(a) - parse(b);
+        });
+        const panel = document.getElementById('loadedMonthsPanel');
+        const chips = document.getElementById('loadedMonthChips');
+        panel.style.display = '';
+        chips.innerHTML = uniqueMonths.map(m =>
+          `<span class="loaded-month-chip ${m === notionMonth ? 'current' : ''}">${m}</span>`
+        ).join('');
+
+        document.getElementById('studentPanel').style.display = '';
+        document.getElementById('welcomeScreen').style.display = 'none';
+
+        const mins = Math.round((Date.now() - cache.savedAt) / 60000);
+        const timeLabel = mins < 1 ? '방금' : mins < 60 ? `${mins}분 전` : `${Math.round(mins/60)}시간 전`;
+        showToast(`📦 캐시 데이터 복원 (${timeLabel} 저장됨) — 최신 데이터는 🔄 불러오기를 눌러주세요`, 'info');
+
+        renderAll();
+        cacheRestored = true;
+      }
+    }
+  } catch (e) { console.warn('[캐시 복원 실패]', e.message); }
+
+  if (!cacheRestored) {
+    document.getElementById('welcomeNoSheet').style.display = 'none';
+    document.getElementById('welcomeAutoLoad').style.display = '';
+  }
 } else {
   document.getElementById('welcomeNoSheet').style.display = '';
   document.getElementById('welcomeAutoLoad').style.display = 'none';
@@ -3134,17 +3174,21 @@ async function loadFromSheet(tabName) {
       allTabs = [...prevTabs, tabName];
     }
 
-    // 3. 탭별 데이터 로드
-    for (let i = 0; i < allTabs.length; i++) {
-      setMsg(`(${i+1}/${allTabs.length}) ${allTabs[i]} 불러오는 중...`);
-      try {
-        const csvText = await fetchSheetTab(scriptUrl, sheetId, allTabs[i]);
-        const parsed  = parseCSV(csvText);
+    // 3. 탭별 데이터 병렬 로드
+    const firstMonth = tabNameToNotionMonth(allTabs[0]);
+    const lastMonth  = tabNameToNotionMonth(allTabs[allTabs.length - 1]);
+    setMsg(`${firstMonth} ~ ${lastMonth} (${allTabs.length}개월) 불러오는 중...`);
+    const results = await Promise.allSettled(
+      allTabs.map(tab => fetchSheetTab(scriptUrl, sheetId, tab))
+    );
+    results.forEach((result, i) => {
+      if (result.status === 'fulfilled') {
+        const parsed = parseCSV(result.value);
         if (parsed.length > 0) allStudents = allStudents.concat(parsed);
-      } catch (tabErr) {
-        console.info(`[탭 없음] ${allTabs[i]}:`, tabErr.message);
+      } else {
+        console.info(`[탭 없음] ${allTabs[i]}:`, result.reason?.message);
       }
-    }
+    });
 
     if (allStudents.length === 0) {
       throw new Error(`데이터가 없습니다. 기준월 탭(${tabName})을 확인해주세요.`);
@@ -3153,6 +3197,13 @@ async function loadFromSheet(tabName) {
     AppStore.setAllStudents(allStudents, `구글시트:${tabName}`);
     const loadedTabs = allTabs.filter(t => allStudents.some(s => s.month === tabNameToNotionMonth(t)));
     showToast(`✅ ${allStudents.length}건 로드 완료! (${loadedTabs.length}개월 데이터)`, 'success');
+
+    // 캐시 저장
+    try {
+      localStorage.setItem('mg_students_cache', JSON.stringify({
+        sheetId, tabName, students: allStudents, savedAt: Date.now()
+      }));
+    } catch (e) { console.warn('[캐시 저장 실패]', e.message); }
 
     const notionMonth = tabNameToNotionMonth(tabName);
     if (notionMonth) AppStore.setSelectedMonth(notionMonth);
