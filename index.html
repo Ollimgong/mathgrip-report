@@ -161,27 +161,13 @@ a { color: inherit; text-decoration: none; }
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 12px;
-  border: 1px solid var(--border);
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  border: 1px solid var(--primary);
 }
 .loaded-month-chip.current {
   background: var(--primary);
   color: white;
-  border-color: var(--primary);
-}
-.loaded-month-chip.loaded {
-  background: var(--primary-light);
-  color: var(--primary-dark);
-  border-color: var(--primary);
-}
-.loaded-month-chip.future {
-  background: var(--bg);
-  color: var(--text-light);
-  border-color: var(--border-light);
-}
-.loaded-month-chip.empty {
-  background: #fef9c3;
-  color: #a16207;
-  border-color: #fde68a;
 }
 
 /* 소스 패널 */
@@ -686,15 +672,15 @@ a { color: inherit; text-decoration: none; }
 .logo-preview { max-height: 60px; max-width: 100%; object-fit: contain; }
 
 /* 선생님 색상 */
-.teacher-color-item {
+.grade-color-item {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 8px 0;
   border-bottom: 1px solid var(--border-light);
 }
-.teacher-color-item:last-child { border-bottom: none; }
-.teacher-color-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--text-main); }
+.grade-color-item:last-child { border-bottom: none; }
+.grade-color-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--text-main); }
 .color-presets { display: flex; gap: 5px; align-items: center; }
 .color-preset-btn {
   width: 20px;
@@ -717,7 +703,7 @@ a { color: inherit; text-decoration: none; }
   background: none;
   overflow: hidden;
 }
-.teacher-color-preview { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); }
+.grade-color-preview { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); }
 
 /* Notion 방법 */
 .howto-step {
@@ -1620,10 +1606,10 @@ tr.rc-trend-current .rc-trend-td-score { color: var(--primary-dark); }
             <button class="btn btn-primary" id="btnSaveSettings">💾 설정 저장</button>
           </div>
 
-          <!-- 선생님별 색상 -->
+          <!-- 학년별 색상 -->
           <div class="settings-card">
-            <div class="settings-card-title">🎨 선생님별 색상</div>
-            <div class="teacher-color-list" id="teacherColorList">
+            <div class="settings-card-title">🎨 학년별 카드 색상</div>
+            <div class="grade-color-list" id="gradeColorList">
               <div style="color:#94A3B8;font-size:13px;padding:12px 0;text-align:center;">데이터를 먼저 불러와주세요</div>
             </div>
           </div>
@@ -1908,7 +1894,7 @@ function gradeOrder(grade) {
 const STORAGE_KEY = 'mg_report_settings';
 
 // 기본 학년별 색상
-const DEFAULT_TEACHER_COLORS = [
+const DEFAULT_GRADE_COLORS = [
   { name: '블루', value: '#3B82F6' },
   { name: '그린', value: '#10B981' },
   { name: '퍼플', value: '#8B5CF6' },
@@ -1934,7 +1920,7 @@ const AppStore = (() => {
     // 설정
     academyName: '매쓰그립수학학원',
     logoBase64: '',
-    teacherColors: {},
+    gradeColors: {},
 
     // UI 상태
     isLoaded: false,
@@ -2089,7 +2075,7 @@ const AppStore = (() => {
           const parsed = JSON.parse(saved);
           state.academyName = parsed.academyName || '매쓰그립수학학원';
           state.logoBase64 = parsed.logoBase64 || '';
-          state.teacherColors = parsed.teacherColors || {};
+          state.gradeColors = parsed.gradeColors || {};
         }
       } catch (e) {
         console.warn('[Store] 설정 로드 실패:', e);
@@ -2099,13 +2085,13 @@ const AppStore = (() => {
     saveSettings(settings) {
       if (settings.academyName !== undefined) state.academyName = settings.academyName;
       if (settings.logoBase64 !== undefined) state.logoBase64 = settings.logoBase64;
-      if (settings.teacherColors !== undefined) state.teacherColors = settings.teacherColors;
+      if (settings.gradeColors !== undefined) state.gradeColors = settings.gradeColors;
 
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           academyName: state.academyName,
           logoBase64: state.logoBase64,
-          teacherColors: state.teacherColors,
+          gradeColors: state.gradeColors,
         }));
       } catch (e) {
         console.warn('[Store] 설정 저장 실패:', e);
@@ -2113,14 +2099,14 @@ const AppStore = (() => {
       notify();
     },
 
-    setTeacherColor(teacher, color) {
-      state.teacherColors = { ...state.teacherColors, [teacher]: color };
+    setGradeColor(teacher, color) {
+      state.gradeColors = { ...state.gradeColors, [teacher]: color };
       this.saveSettings({});
       notify();
     },
 
-    getTeacherColor(teacher) {
-      return state.teacherColors[teacher] || null;
+    getGradeColor(teacher) {
+      return state.gradeColors[teacher] || null;
     },
   };
 })();
@@ -2354,15 +2340,18 @@ function buildDataSlots(currentMonth, annualScores, allStudents, studentId) {
   const cur = parseMonthLabel(currentMonth);
   if (!cur) return [];
 
+  // allStudents에 존재하는 모든 고유 월 (= 실제 로드된 탭)
   const existingMonths = [...new Set(allStudents.map(s => s.month).filter(Boolean))]
     .filter(m => parseMonthLabel(m) <= cur)
     .sort((a, b) => parseMonthLabel(a) - parseMonthLabel(b));
 
+  // 최대 7개 (기준월 포함 최근 7개월)
   const recentMonths = existingMonths.slice(-7);
 
   return recentMonths.map(label => {
     const isCurrent = (label === currentMonth);
     const found = annualScores.find(s => s.month === label);
+    // 해당 월의 학년 (같은 학생의 해당 월 레코드에서 추출)
     const rec = allStudents.find(s => s.id === studentId && s.month === label);
     const grade = rec ? rec.grade : null;
     return {
@@ -2396,6 +2385,16 @@ function buildReportCard(student, allStudents, accentColor, settings, uid) {
 
   const { score, attStats, att2Stats, hwStats } = student;
 
+  // 학년별 색상 헬퍼
+  const gradeColors = (settings && settings.gradeColors) || {};
+  const defaultGradeColorList = ['#3B82F6','#10B981','#8B5CF6','#F59E0B','#EC4899','#14B8A6'];
+  const allGrades = [...new Set(allStudents.map(s => s.grade).filter(Boolean))].sort();
+  function getSlotGradeColor(grade) {
+    if (!grade) return BRAND_PRIMARY;
+    if (gradeColors[grade]) return gradeColors[grade];
+    return defaultGradeColorList[allGrades.indexOf(grade) % defaultGradeColorList.length] || BRAND_PRIMARY;
+  }
+
   const logoHtml = logoBase64
     ? `<img src="${logoBase64}" alt="로고" class="rc-logo-img">`
     : `<div class="rc-logo-placeholder">📐</div>`;
@@ -2408,12 +2407,21 @@ function buildReportCard(student, allStudents, accentColor, settings, uid) {
   // ── 성적 추이: 테이블 + 막대그래프 병렬 ────────────────
   const maxScore = 100;
 
+  // 학년이 바뀌는 지점 감지 + 범례 생성
+  const usedGrades = [...new Set(slots.map(s => s.grade).filter(Boolean))];
+  const gradeLegendHtml = usedGrades.length > 1
+    ? `<div class="rc-trend-legend">${usedGrades.map(g =>
+        `<span class="rc-trend-legend-item"><span class="rc-trend-legend-dot" style="background:${getSlotGradeColor(g)};"></span>${g}</span>`
+      ).join('')}</div>`
+    : '';
+
   // 모든 슬롯 표시 (점수 없는 달도 포함)
   const trendTableRows = slots.map(slot => {
     const scopeText = slot.score !== null ? (slot.scope || '').replace(/;/g, ' / ').trim() : '';
     const scoreText = slot.score !== null ? slot.score : '<span class="rc-trend-no-score">미시행</span>';
+    const gradeColor = getSlotGradeColor(slot.grade);
     return `<tr class="${slot.isCurrent ? 'rc-trend-current' : ''}">
-      <td class="rc-trend-td-month">${shortMonth(slot.label)}</td>
+      <td class="rc-trend-td-month"><span class="rc-grade-dot" style="background:${gradeColor};"></span>${shortMonth(slot.label)}</td>
       <td class="rc-trend-td-score">${scoreText}</td>
       <td class="rc-trend-td-scope">${scopeText}</td>
     </tr>`;
@@ -2421,10 +2429,11 @@ function buildReportCard(student, allStudents, accentColor, settings, uid) {
 
   const barsHtml = slots.map(slot => {
     const pct = slot.score !== null ? Math.round(slot.score / maxScore * 100) : 0;
-    const barColor = slot.isCurrent ? BRAND_PRIMARY : hexToRgba(BRAND_PRIMARY, 0.45);
+    const gradeColor = getSlotGradeColor(slot.grade);
+    const barOpacity = slot.isCurrent ? 1 : 0.55;
     const scoreLabel = slot.score !== null ? `<div class="rc-bar-score">${slot.score}</div>` : '<div class="rc-bar-score">&nbsp;</div>';
     const barInner = slot.score !== null
-      ? `<div class="rc-bar-fill" style="height:${pct}%;background:${barColor};"></div>`
+      ? `<div class="rc-bar-fill" style="height:${pct}%;background:${gradeColor};opacity:${barOpacity};"></div>`
       : `<div class="rc-bar-empty"></div>`;
     return `
     <div class="rc-bar-col">
@@ -2498,7 +2507,10 @@ function buildReportCard(student, allStudents, accentColor, settings, uid) {
 
   <!-- 성적 추이 -->
   <div class="rc-trend-section">
-    <div class="rc-trend-title" style="border-left:3px solid ${BRAND_PRIMARY};padding-left:8px;color:${BRAND_SECONDARY};">성적 추이</div>
+    <div class="rc-trend-header">
+      <div class="rc-trend-title" style="border-left:3px solid ${BRAND_PRIMARY};padding-left:8px;color:${BRAND_SECONDARY};">성적 추이</div>
+      ${gradeLegendHtml}
+    </div>
     <div class="rc-trend-layout">
       <div class="rc-trend-table-wrap">
         <table class="rc-trend-table">
@@ -2683,7 +2695,7 @@ async function printReports(students, allStudents) {
   }
 
   const state = AppStore.getState();
-  const { academyName, logoBase64, teacherColors } = state;
+  const { academyName, logoBase64, gradeColors } = state;
 
   // ── 기존 프린트 컨테이너 완전 제거 ──────────────────────
   const existing = document.getElementById('print-container');
@@ -2707,8 +2719,8 @@ async function printReports(students, allStudents) {
 
   for (const student of students) {
     const uid   = `print_${student.id}_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
-    const color = getTeacherColor(student.teacher, state);
-    const html  = buildReportCard(student, allStudents, color, { academyName, logoBase64, teacherColors }, uid);
+    const color = getGradeColor(student.grade, state);
+    const html  = buildReportCard(student, allStudents, color, { academyName, logoBase64, gradeColors }, uid);
 
     const page = document.createElement('div');
     page.className = 'print-page';
@@ -2723,7 +2735,7 @@ async function printReports(students, allStudents) {
   await sleep(120); // DOM paint 대기
 
   for (const [student, uid] of uidMap) {
-    const color = getTeacherColor(student.teacher, state);
+    const color = getGradeColor(student.grade, state);
     renderCharts(student, allStudents, color, uid);
   }
 
@@ -2747,7 +2759,7 @@ async function printReports(students, allStudents) {
  */
 function previewReport(student, allStudents, accentColor) {
   const state = AppStore.getState();
-  const { academyName, logoBase64, teacherColors } = state;
+  const { academyName, logoBase64, gradeColors } = state;
 
   // 기존 모달 제거 (차트 포함)
   const existing = document.getElementById('preview-modal');
@@ -2761,7 +2773,7 @@ function previewReport(student, allStudents, accentColor) {
 
   const color = accentColor || '#3B82F6';
   const uid   = `preview_${Date.now()}`;
-  const html  = buildReportCard(student, allStudents, color, { academyName, logoBase64, teacherColors }, uid);
+  const html  = buildReportCard(student, allStudents, color, { academyName, logoBase64, gradeColors }, uid);
 
   const modal = document.createElement('div');
   modal.id = 'preview-modal';
@@ -2922,7 +2934,7 @@ function initSheetPanel(scriptUrl, sheetId) {
 
 function populateSheetMonthSelect() {
   const sel = document.getElementById('sheetMonthSelect');
-  sel.innerHTML = '<option value="">📅 기준월 선택...</option>';
+  sel.innerHTML = '<option value="">📅 월 선택...</option>';
   const now = new Date();
   for (let i = 0; i < 12; i++) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -2933,6 +2945,7 @@ function populateSheetMonthSelect() {
     if (i === 0) opt.selected = true;
     sel.appendChild(opt);
   }
+  // 초기 선택된 값
 }
 
 // ── 구글 시트에서 불러오기 (공통 함수) ────────────────────
@@ -2993,7 +3006,7 @@ async function loadFromSheet(tabName) {
       allTabs = [...prevTabs, tabName];
     }
 
-    // 탭별 데이터 로드
+    // 3. 탭별 데이터 로드
     for (let i = 0; i < allTabs.length; i++) {
       setMsg(`(${i+1}/${allTabs.length}) ${allTabs[i]} 불러오는 중...`);
       try {
@@ -3022,7 +3035,7 @@ async function loadFromSheet(tabName) {
     panel.style.display = '';
     chips.innerHTML = loadedTabs.map(t => {
       const isCur = t === tabName;
-      return `<span class="loaded-month-chip ${isCur ? 'current' : 'loaded'}">${tabNameToNotionMonth(t)}</span>`;
+      return `<span class="loaded-month-chip ${isCur ? 'current' : ''}">${tabNameToNotionMonth(t)}</span>`;
     }).join('');
 
     // 학생 사이드바 표시
@@ -3143,7 +3156,7 @@ function renderAll() {
   renderStudentList(s);
   renderReportCards(s);
   updateStats(s);
-  renderTeacherColorList(s);
+  renderGradeColorList(s);
 
   if (s.selectedMonth) {
     document.getElementById('appSubtitle').textContent = `${s.selectedMonth} · ${s.currentMonthStudents.length}명`;
@@ -3165,9 +3178,8 @@ function renderFilterChips(s) {
   tc.innerHTML = `<button class="filter-chip ${allTeacherActive ? 'active' : ''}" data-action="clear-teacher">전체</button>`
     + teachers.map(t => {
       const active = s.filterTeachers.has(t);
-      const color = getTeacherColor(t, s);
       const count = monthStudents.filter(st => st.teacher === t).length;
-      return `<button class="filter-chip ${active ? 'active' : ''}" data-teacher="${t}"><span class="chip-dot" style="background:${color};"></span>${t} <span class="chip-count">${count}</span></button>`;
+      return `<button class="filter-chip ${active ? 'active' : ''}" data-teacher="${t}">${t} <span class="chip-count">${count}</span></button>`;
     }).join('');
 
   tc.querySelectorAll('[data-teacher]').forEach(btn => {
@@ -3181,8 +3193,9 @@ function renderFilterChips(s) {
   gc.innerHTML = `<button class="filter-chip ${allGradeActive ? 'active' : ''}" data-action="clear-grade">전체</button>`
     + grades.map(g => {
       const active = s.filterGrades.has(g);
+      const color = getGradeColor(g, s);
       const count = monthStudents.filter(st => st.grade === g).length;
-      return `<button class="filter-chip ${active ? 'active' : ''}" data-grade="${g}">${g} <span class="chip-count">${count}</span></button>`;
+      return `<button class="filter-chip ${active ? 'active' : ''}" data-grade="${g}"><span class="chip-dot" style="background:${color};"></span>${g} <span class="chip-count">${count}</span></button>`;
     }).join('');
 
   gc.querySelectorAll('[data-grade]').forEach(btn => {
@@ -3206,7 +3219,7 @@ function renderStudentList(s) {
   list.innerHTML = students.map(student => {
     const key = makeKey(student);
     const isSelected = s.selectedStudentIds.has(key);
-    const color = getTeacherColor(student.teacher, s);
+    const color = getGradeColor(student.grade, s);
     const scoreCls = getScoreClass(student.score);
     const scoreLabel = student.score !== null ? `${student.score}점` : '–';
 
@@ -3265,8 +3278,8 @@ function renderReportCards(s) {
   const preview = showStudents.slice(0, 50);
 
   preview.forEach(student => {
-    const color    = getTeacherColor(student.teacher, s);
-    const settings = { academyName: s.academyName, logoBase64: s.logoBase64, teacherColors: s.teacherColors };
+    const color    = getGradeColor(student.grade, s);
+    const settings = { academyName: s.academyName, logoBase64: s.logoBase64, gradeColors: s.gradeColors };
     const uid      = `card_${student.id}_${Date.now()}_${Math.random().toString(36).slice(2,5)}`;
     const html     = buildReportCard(student, s.allStudents, color, settings, uid);
 
@@ -3300,7 +3313,7 @@ function renderReportCards(s) {
   setTimeout(() => {
     preview.forEach(student => {
       const uid   = cardUidMap.get(makeKey(student));
-      const color = getTeacherColor(student.teacher, s);
+      const color = getGradeColor(student.grade, s);
       renderCharts(student, s.allStudents, color, uid);
     });
   }, 200);
@@ -3310,7 +3323,7 @@ function renderReportCards(s) {
       e.stopPropagation();
       const student = s.filteredStudents.find(st => makeKey(st) === btn.dataset.key);
       if (!student) return;
-      const color = getTeacherColor(student.teacher, s);
+      const color = getGradeColor(student.grade, s);
       if (btn.dataset.action === 'preview') {
         previewReport(student, s.allStudents, color);
       } else if (btn.dataset.action === 'print-single') {
@@ -3353,43 +3366,43 @@ function updateStats(s) {
   }
 }
 
-function renderTeacherColorList(s) {
-  const container = document.getElementById('teacherColorList');
-  const teachers = getTeachers(s.allStudents);
+function renderGradeColorList(s) {
+  const container = document.getElementById('gradeColorList');
+  const grades = getGrades(s.allStudents);
 
-  if (teachers.length === 0) {
+  if (grades.length === 0) {
     container.innerHTML = '<div style="color:#94A3B8;font-size:13px;padding:12px 0;text-align:center;">데이터를 먼저 불러와주세요</div>';
     return;
   }
 
-  container.innerHTML = teachers.map(teacher => {
-    const currentColor = getTeacherColor(teacher, s);
+  container.innerHTML = grades.map(grade => {
+    const currentColor = getGradeColor(grade, s);
     return `
-    <div class="teacher-color-item">
-      <div class="teacher-color-name">${teacher}</div>
+    <div class="grade-color-item">
+      <div class="grade-color-name">${grade}</div>
       <div class="color-presets">
-        ${DEFAULT_TEACHER_COLORS.map(c => `
+        ${DEFAULT_GRADE_COLORS.map(c => `
           <button class="color-preset-btn ${currentColor === c.value ? 'active' : ''}"
             style="background:${c.value};" title="${c.name}"
-            data-teacher="${teacher}" data-color="${c.value}">
+            data-grade="${grade}" data-color="${c.value}">
           </button>`).join('')}
         <input type="color" class="color-custom-input"
-          value="${currentColor}" data-teacher="${teacher}" title="커스텀 색상">
+          value="${currentColor}" data-grade="${grade}" title="커스텀 색상">
       </div>
-      <div class="teacher-color-preview" style="background:${currentColor};"></div>
+      <div class="grade-color-preview" style="background:${currentColor};"></div>
     </div>`;
   }).join('');
 
   container.querySelectorAll('.color-preset-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      AppStore.setTeacherColor(btn.dataset.teacher, btn.dataset.color);
+      AppStore.setGradeColor(btn.dataset.grade, btn.dataset.color);
       renderAll();
     });
   });
 
   container.querySelectorAll('.color-custom-input').forEach(input => {
     input.addEventListener('input', () => {
-      AppStore.setTeacherColor(input.dataset.teacher, input.value);
+      AppStore.setGradeColor(input.dataset.grade, input.value);
       renderAll();
     });
   });
@@ -3428,7 +3441,7 @@ document.getElementById('btnPreviewFirst').addEventListener('click', () => {
   const selected = AppStore.getSelectedStudents();
   if (!selected.length) return;
   const s = AppStore.getState();
-  previewReport(selected[0], s.allStudents, getTeacherColor(selected[0].teacher, s));
+  previewReport(selected[0], s.allStudents, getGradeColor(selected[0].grade, s));
 });
 
 document.getElementById('btnSettings').addEventListener('click', switchToSettingsTab);
@@ -3500,11 +3513,11 @@ function sortStudents(students) {
 
 
 
-function getTeacherColor(teacher, s) {
-  if (s.teacherColors && s.teacherColors[teacher]) return s.teacherColors[teacher];
-  const colors = DEFAULT_TEACHER_COLORS.map(c => c.value);
-  const teachers = [...new Set((s.allStudents || []).map(st => st.teacher).filter(Boolean))].sort();
-  return colors[teachers.indexOf(teacher) % colors.length] || '#3B82F6';
+function getGradeColor(grade, s) {
+  if (s.gradeColors && s.gradeColors[grade]) return s.gradeColors[grade];
+  const colors = DEFAULT_GRADE_COLORS.map(c => c.value);
+  const grades = [...new Set((s.allStudents || []).map(st => st.grade).filter(Boolean))].sort();
+  return colors[grades.indexOf(grade) % colors.length] || '#3B82F6';
 }
 
 function getScoreClass(score) {
