@@ -2886,8 +2886,8 @@ if (appState.logoBase64) {
 }
 
 // 구글 시트 설정 복원
-const savedScriptUrl = localStorage.getItem('mg_script_url') || '';
-const savedSheetId   = localStorage.getItem('mg_sheet_id')   || '';
+const savedScriptUrl = localStorage.getItem('mg_script_url') || 'https://script.google.com/macros/s/AKfycbw4UtQ4RYt8wCJKfsWyjRZHdoj8bm1SSKee9m67qcg3yd7fF0UWpl5jwRWZRfDbCV_PZw/exec';
+const savedSheetId   = localStorage.getItem('mg_sheet_id')   || '1Nc-oLHAy-nq8tu0fpJCV74ydY1a9K4hk65SFW4xayz4';
 if (savedScriptUrl) document.getElementById('inputScriptUrl').value = savedScriptUrl;
 if (savedSheetId)   document.getElementById('inputSheetId').value   = savedSheetId;
 if (savedScriptUrl && savedSheetId) {
